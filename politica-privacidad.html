@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="es-ES">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Política de privacidad · Freedoo</title>
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preload" href="assets/fonts/montserrat-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/montserrat-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- ===== COMPARTIDO: consentimiento y GTM (va el PRIMERO en el <head>) ===== -->
+<script>
+/* ---------- CONFIGURACIÓN ---------- */
+// ID del contenedor de Google Tag Manager. [PENDIENTE: ID de GTM]
+// Mientras sea el marcador "GTM-XXXXXXX", GTM no se carga.
+const GTM_ID = "GTM-XXXXXXX";
+const FREEDOO_CONSENT_KEY = "freedoo_consent";
+// Modo desarrollo: localhost, archivo local o ?debug=1. Imprime en consola cada dataLayer.push.
+const FREEDOO_DEBUG = /^(localhost|127\.0\.0\.1|)$/.test(location.hostname) || /[?&]debug=1(&|$)/.test(location.search);
+
+/* ---------- dataLayer + modo de consentimiento (antes de GTM) ---------- */
+window.dataLayer = window.dataLayer || [];
+if (FREEDOO_DEBUG) {
+  (function () {
+    var pushOriginal = window.dataLayer.push;
+    window.dataLayer.push = function () {
+      for (var i = 0; i < arguments.length; i++) console.log("[dataLayer.push]", arguments[i]);
+      return pushOriginal.apply(window.dataLayer, arguments);
+    };
+  })();
+}
+function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {
+  ad_storage: 'denied', analytics_storage: 'denied',
+  ad_user_data: 'denied', ad_personalization: 'denied',
+  wait_for_update: 500
+});
+gtag('set', 'ads_data_redaction', true);
+
+// Nunca se envían datos personales al dataLayer: estas claves se eliminan siempre.
+var FREEDOO_CLAVES_PII = ["nombre", "email", "telefono", "telefono_numero", "telefono_prefijo", "empresa", "que_resolver"];
+function freedooPush(evento) {
+  FREEDOO_CLAVES_PII.forEach(function (k) { if (k in evento) delete evento[k]; });
+  window.dataLayer.push(evento);
+}
+
+/* ---------- Lectura del consentimiento guardado ---------- */
+function freedooLeerConsentimiento() {
+  try {
+    var c = JSON.parse(localStorage.getItem(FREEDOO_CONSENT_KEY) || "null");
+    if (!c || !c.fecha) return null;
+    var limite = new Date(c.fecha);
+    if (isNaN(limite.getTime())) return null;
+    limite.setFullYear(limite.getFullYear() + 1); // se vuelve a preguntar a los 12 meses
+    if (Date.now() > limite.getTime()) return null;
+    return { analytics: !!c.analytics, ads: !!c.ads, fecha: c.fecha };
+  } catch (e) { return null; }
+}
+function freedooEstadoConsent(c) {
+  var a = c && c.analytics ? "granted" : "denied";
+  var p = c && c.ads ? "granted" : "denied";
+  return { analytics_storage: a, ad_storage: p, ad_user_data: p, ad_personalization: p };
+}
+
+/* ---------- Carga de GTM (solo con consentimiento y con un ID real) ---------- */
+var freedooGtmCargado = false;
+function freedooCargarGTM() {
+  if (freedooGtmCargado) return;
+  if (GTM_ID === "GTM-XXXXXXX" || !/^GTM-[A-Z0-9]+$/.test(GTM_ID)) {
+    if (FREEDOO_DEBUG) console.info("[Freedoo] GTM no se carga: falta el ID real en GTM_ID.");
+    return;
+  }
+  freedooGtmCargado = true;
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer',GTM_ID);
+}
+
+(function () {
+  var c = freedooLeerConsentimiento();
+  if (c) {
+    gtag('consent', 'update', freedooEstadoConsent(c));
+    if (c.analytics || c.ads) freedooCargarGTM();
+  }
+})();
+</script>
+<!-- ===== FIN COMPARTIDO: consentimiento y GTM ===== -->
+
+<style>
+/* ===== COMPARTIDO: estilos base ===== */
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:800;font-display:swap;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root {
+  --violeta: #8130D4;          /* principal y acento. ESTIMADO */
+  --violeta-oscuro: #6A22B3;   /* hover de botones (derivado, ajustable) */
+  --violeta-suave: #F3EAFC;    /* fondos de realce (derivado, ajustable) */
+  --gris-fondo: #F8F9FA;       /* secciones alternas. ESTIMADO */
+  --gris-oscuro: #343A40;      /* franja final del pie. ESTIMADO */
+  --texto: #212529;            /* ESTIMADO */
+  --blanco: #FFFFFF;
+  --radio: 6px;                /* esquinas ligeramente redondeadas */
+
+  /* Complementarios (derivados, ajustables) */
+  --violeta-claro: #E0CAF9;    /* palabra rotativa: 4,67:1 incluso sobre blanco puro bajo la capa negra del 65 % */
+  --texto-secundario: #495057;
+  --gris-icono: #6C757D;
+  --borde: #DEE2E6;
+  --error: #B3261E;
+  --amarillo-pendiente: #FFE45C;
+  --sombra: 0 8px 24px rgba(33, 37, 41, .08);
+  --ancho: 1120px;
+  --fuente: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --foco: var(--violeta);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--blanco);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  /* Mientras el banner de cookies está visible, deja sitio para poder leer el pie */
+  padding-bottom: var(--alto-cookies, 0px);
+}
+img, svg { display: block; max-width: 100%; }
+img { height: auto; }
+h1, h2, h3 { font-weight: 800; line-height: 1.18; letter-spacing: -.01em; margin: 0 0 .6em; }
+p { margin: 0 0 1em; }
+a { color: var(--violeta); text-underline-offset: .15em; }
+a:hover { color: var(--violeta-oscuro); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.contenedor { width: 100%; max-width: var(--ancho); margin: 0 auto; padding: 0 16px; }
+@media (min-width: 768px) { .contenedor { padding: 0 24px; } body { font-size: 1.0625rem; } }
+
+/* Marcador de dato pendiente: visible para que nadie lo publique por error */
+.pendiente {
+  background: var(--amarillo-pendiente);
+  color: #1A1A1A;
+  font-weight: 600;
+  padding: .05em .35em;
+  border-radius: 3px;
+  outline: 1px dashed #8A6D00;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+  min-height: 48px; padding: .8em 1.5em;
+  border: 2px solid var(--violeta); border-radius: var(--radio);
+  background: var(--violeta); color: var(--blanco);
+  font-weight: 600; font-size: 1rem; line-height: 1.2; text-align: center; text-decoration: none;
+  cursor: pointer; transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.btn:hover { background: var(--violeta-oscuro); border-color: var(--violeta-oscuro); color: var(--blanco); }
+.btn:disabled { cursor: progress; opacity: .75; }
+.btn--secundario { background: var(--blanco); color: var(--violeta); }
+.btn--secundario:hover { background: var(--violeta-suave); border-color: var(--violeta-oscuro); color: var(--violeta-oscuro); }
+
+/* Pie */
+.pie { margin-top: 0; }
+.pie__ola { display: block; width: 100%; height: 48px; color: var(--violeta); }
+@media (min-width: 768px) { .pie__ola { height: 72px; } }
+.pie__violeta { background: var(--violeta); color: var(--blanco); padding: 8px 0 28px; --foco: var(--blanco); }
+.pie__datos { margin: 0 0 14px; font-size: .9375rem; }
+.pie__enlaces { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: .9375rem; }
+.pie__enlaces a, .pie__boton { color: var(--blanco); text-decoration: underline; text-underline-offset: .2em; }
+.pie__enlaces a:hover, .pie__boton:hover { color: var(--blanco); text-decoration-thickness: 2px; }
+.pie__boton { background: none; border: 0; padding: 0; cursor: pointer; font-size: inherit; }
+.pie__franja { background: var(--gris-oscuro); color: var(--blanco); padding: 26px 0 28px; min-height: 80px; font-size: .875rem; }
+.pie__franja p { margin: 0; }
+
+/* Banner y panel de cookies */
+.cookies {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1100;
+  padding: 0 0 env(safe-area-inset-bottom);
+  background: var(--blanco); color: var(--texto);
+  border-top: 4px solid var(--violeta);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, .18);
+  max-height: 100vh; max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain;
+}
+.cookies__caja { max-width: 960px; margin: 0 auto; padding: 18px 16px 18px; }
+@media (min-width: 768px) { .cookies__caja { padding: 22px 24px; } }
+.cookies__titulo { font-size: 1.125rem; margin: 0 0 .4em; }
+.cookies__texto { font-size: .9375rem; margin: 0 0 14px; }
+.cookies__botones { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 640px) { .cookies__botones { grid-template-columns: repeat(3, 1fr); } }
+.cookies__btn { width: 100%; }
+.cookies__categorias { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; }
+.categoria { border: 1px solid var(--borde); border-radius: var(--radio); padding: 12px 14px; }
+.categoria__cabecera { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; }
+.categoria__nombre { font-weight: 800; }
+.categoria__estado { display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; color: var(--texto-secundario); }
+.categoria p { margin: 6px 0 0; font-size: .875rem; color: var(--texto-secundario); }
+.interruptor {
+  -webkit-appearance: none; appearance: none; flex: none; margin: 0;
+  width: 46px; height: 26px; border-radius: 13px; position: relative; cursor: pointer;
+  background: #ADB5BD; transition: background-color .2s ease;
+}
+.interruptor::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--blanco); transition: transform .2s ease; box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+.interruptor:checked { background: var(--violeta); }
+.interruptor:checked::after { transform: translateX(20px); }
+.interruptor:disabled { cursor: not-allowed; opacity: .6; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+  .interruptor, .interruptor::after, .btn { transition: none; }
+}
+/* ===== FIN COMPARTIDO: estilos base ===== */
+/* ===== PÁGINAS LEGALES ===== */
+.cabecera-legal { border-bottom: 1px solid var(--borde); background: var(--blanco); }
+.cabecera-legal .contenedor { padding-top: 16px; padding-bottom: 16px; }
+.cabecera-legal a { display: inline-block; border-radius: var(--radio); }
+.cabecera-legal img { width: 200px; }
+@media (min-width: 768px) { .cabecera-legal img { width: 240px; } }
+.legal { max-width: 720px; margin: 0 auto; padding: 48px 16px 72px; }
+@media (min-width: 768px) { .legal { padding: 64px 24px 96px; } }
+.legal h1 { color: var(--violeta); font-size: clamp(1.875rem, 1.4rem + 2vw, 2.5rem); margin-bottom: .3em; }
+.legal__fecha { color: var(--texto-secundario); font-size: .9375rem; margin-bottom: 2.2em; }
+.legal h2 { color: var(--violeta); font-size: clamp(1.25rem, 1.1rem + .6vw, 1.5rem); margin: 2em 0 .6em; }
+.legal ul { padding-left: 1.25em; margin: 0 0 1em; }
+.legal li { margin-bottom: .4em; }
+.tabla-scroll { width: 100%; overflow-x: auto; margin: 0 0 1.25em; border: 1px solid var(--borde); border-radius: var(--radio); }
+.tabla-scroll:focus-visible { outline-offset: 2px; }
+.legal table { width: 100%; border-collapse: collapse; font-size: .9375rem; line-height: 1.5; }
+.legal th, .legal td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--borde); }
+.legal th { background: var(--violeta-suave); font-weight: 800; }
+.legal tr:last-child td { border-bottom: 0; }
+.legal table.tabla-ancha { min-width: 600px; }
+@media (max-width: 479px) { .legal th, .legal td { padding: 8px 10px; } }
+.legal code { font-size: .875em; background: var(--gris-fondo); padding: .1em .35em; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ===== COMPARTIDO: banner de cookies ===== -->
+<div class="cookies" id="cookies" role="dialog" aria-modal="false" aria-labelledby="cookies-titulo" hidden>
+  <div class="cookies__caja">
+    <div data-cookies-vista="resumen">
+      <h2 class="cookies__titulo" id="cookies-titulo">Cookies</h2>
+      <p class="cookies__texto">Usamos cookies propias y de terceros (Google, Microsoft y Meta) para analizar el uso de esta web y medir la eficacia de nuestros anuncios. Solo se activan si las aceptas. Puedes aceptarlas todas, rechazarlas o elegir por categorías. Más información en la <a href="politica-cookies.html">Política de cookies</a>.</p>
+      <div class="cookies__botones">
+        <button type="button" class="btn cookies__btn" data-cookies="aceptar">Aceptar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="rechazar">Rechazar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="configurar">Configurar</button>
+      </div>
+    </div>
+    <div data-cookies-vista="panel" hidden>
+      <h2 class="cookies__titulo" id="cookies-titulo-panel" tabindex="-1">Configurar cookies</h2>
+      <ul class="cookies__categorias">
+        <li class="categoria">
+          <div class="categoria__cabecera">
+            <span class="categoria__nombre" id="cat-tecnicas">Técnicas</span>
+            <span class="categoria__estado">Siempre activas <input type="checkbox" class="interruptor" role="switch" checked disabled aria-labelledby="cat-tecnicas"></span>
+          </div>
+          <p>Necesarias para que la web funcione y para recordar tu elección de cookies.</p>
+        </li>
+        <li class="categoria">
+          <label class="categoria__cabecera" for="consent-analytics">
+            <span class="categoria__nombre">Analíticas</span>
+            <input type="checkbox" class="interruptor" role="switch" id="consent-analytics">
+          </label>
+          <p>Google Analytics 4 y Microsoft Clarity. Nos ayudan a entender cómo se usa la página.</p>
+        </li>
+        <li class="categoria">
+          <label class="categoria__cabecera" for="consent-ads">
+            <span class="categoria__nombre">Publicitarias</span>
+            <input type="checkbox" class="interruptor" role="switch" id="consent-ads">
+          </label>
+          <p>Píxel de Meta. Nos ayuda a medir la eficacia de nuestros anuncios en Meta.</p>
+        </li>
+      </ul>
+      <div class="cookies__botones">
+        <button type="button" class="btn cookies__btn" data-cookies="aceptar">Aceptar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="rechazar">Rechazar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="guardar">Guardar selección</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== FIN COMPARTIDO: banner de cookies ===== -->
+
+<div id="pagina">
+  <header class="cabecera-legal">
+    <div class="contenedor">
+      <a href="index.html"><img src="assets/logo.png" alt="Freedoo" width="840" height="111"></a>
+    </div>
+  </header>
+
+  <main class="legal">
+    <h1>Política de privacidad</h1>
+    <p class="legal__fecha">Última actualización: <span class="pendiente">[PENDIENTE: fecha]</span></p>
+
+    <h2>1. Responsable del tratamiento</h2>
+    <ul>
+      <li>Responsable: <span class="pendiente">[PENDIENTE: razón social]</span></li>
+      <li>NIF: <span class="pendiente">[PENDIENTE: NIF]</span></li>
+      <li>Domicilio: <span class="pendiente">[PENDIENTE: domicilio]</span></li>
+      <li>Email para cuestiones de privacidad: <span class="pendiente">[PENDIENTE: email]</span></li>
+      <li>Delegado de protección de datos: <span class="pendiente">[PENDIENTE: datos del DPD, o eliminar esta línea si no se ha designado]</span></li>
+    </ul>
+
+    <h2>2. Qué datos tratamos</h2>
+    <ul>
+      <li><strong>Identificativos y de contacto:</strong> nombre, empresa, email y teléfono.</li>
+      <li><strong>Profesionales y de cualificación:</strong> sector, cargo, tamaño de la empresa, herramientas de gestión que usa, quién toma la decisión, plazo previsto, necesidad de conectores o desarrollos a medida, inversión prevista y el texto libre que nos escriba.</li>
+      <li><strong>De origen de la visita:</strong> parámetros de campaña (por ejemplo, UTM) que indican desde qué anuncio llegó.</li>
+      <li><strong>De navegación:</strong> los que recogen las cookies que usted acepte (ver la <a href="politica-cookies.html">Política de cookies</a>).</li>
+    </ul>
+
+    <h2>3. Para qué usamos sus datos y con qué base legal</h2>
+    <div class="tabla-scroll" tabindex="0" role="region" aria-label="Finalidades y bases legales">
+      <table>
+        <thead>
+          <tr><th scope="col">Finalidad</th><th scope="col">Base legal</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Atender su solicitud: llamarle para confirmar su interés y agendar una reunión, y gestionar esa reunión</td><td>Su consentimiento, prestado en la casilla correspondiente (art. 6.1.a RGPD), y la aplicación de medidas precontractuales a petición suya (art. 6.1.b RGPD)</td></tr>
+          <tr><td>Enviarle comunicaciones comerciales sobre los servicios de Freedoo, solo si lo ha aceptado</td><td>Su consentimiento (art. 6.1.a RGPD y art. 21 LSSI), que puede retirar en cualquier momento</td></tr>
+          <tr><td>Medir la eficacia de nuestros anuncios en Meta compartiendo sus datos de contacto cifrados (hash), solo si lo ha aceptado</td><td>Su consentimiento (art. 6.1.a RGPD). <span class="pendiente">[PENDIENTE abogado: confirmar base legal]</span></td></tr>
+          <tr><td>Analizar el uso del sitio web, solo si acepta las cookies analíticas</td><td>Su consentimiento (art. 6.1.a RGPD y art. 22.2 LSSI)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Los datos de contacto que se comparten con Meta se envían cifrados mediante una función hash. El cifrado protege los datos, pero no los convierte en anónimos: siguen siendo datos personales.</p>
+
+    <h2>4. Llamada realizada por un asistente de inteligencia artificial</h2>
+    <p>La llamada para agendar la reunión la realiza un sistema de inteligencia artificial, que se identifica como tal al comienzo. La llamada no se graba. <span class="pendiente">[PENDIENTE: indicar si el sistema genera una transcripción o un resumen que se guarde en el CRM]</span>. El asistente solo confirma su interés y agenda la reunión. No se toman decisiones basadas únicamente en un tratamiento automatizado que produzcan efectos jurídicos sobre usted o le afecten de forma significativa.</p>
+
+    <h2>5. Cuánto tiempo conservamos sus datos</h2>
+    <ul>
+      <li>Datos de solicitud y cualificación: mientras se mantenga la relación precontractual o comercial y, si no llega a contratar, durante <span class="pendiente">[PENDIENTE: plazo]</span> desde el último contacto, salvo que antes solicite su supresión.</li>
+      <li>Datos para comunicaciones comerciales: hasta que retire su consentimiento.</li>
+      <li>Después, los datos se bloquean durante los plazos de prescripción de las posibles responsabilidades legales (art. 32 LOPDGDD) y, finalizados estos, se suprimen.</li>
+    </ul>
+
+    <h2>6. A quién comunicamos sus datos</h2>
+    <p>No cedemos sus datos a terceros, salvo obligación legal. Para prestar el servicio, los siguientes proveedores acceden a ellos en nuestro nombre:</p>
+    <div class="tabla-scroll" tabindex="0" role="region" aria-label="Proveedores con acceso a los datos">
+      <table>
+        <thead>
+          <tr><th scope="col">Proveedor</th><th scope="col">Servicio</th><th scope="col"><span class="pendiente">[PENDIENTE: verificar en cada caso]</span></th></tr>
+        </thead>
+        <tbody>
+          <tr><td>HighLevel (GoHighLevel) — <span class="pendiente">[PENDIENTE: razón social y país]</span></td><td>Alojamiento de la web, formulario y CRM</td><td>Contrato de encargado y garantías de transferencia</td></tr>
+          <tr><td><span class="pendiente">[PENDIENTE: proveedor del asistente de IA de voz]</span></td><td>Llamada para agendar la reunión</td><td>Ídem</td></tr>
+          <tr><td><span class="pendiente">[PENDIENTE: proveedor de calendario]</span></td><td>Agenda de reuniones</td><td>Ídem</td></tr>
+          <tr><td><span class="pendiente">[PENDIENTE: proveedor de email]</span></td><td>Envío de comunicaciones</td><td>Ídem</td></tr>
+          <tr><td>Meta Platforms Ireland Ltd.</td><td>Medición de anuncios (solo con su consentimiento)</td><td><span class="pendiente">[PENDIENTE abogado: encargado o corresponsable]</span></td></tr>
+          <tr><td>Google Ireland Ltd.</td><td>Google Analytics 4 y Google Tag Manager (solo con su consentimiento)</td><td>Ídem</td></tr>
+          <tr><td>Microsoft Ireland Operations Ltd.</td><td>Microsoft Clarity (solo con su consentimiento)</td><td>Ídem</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>7. Transferencias internacionales</h2>
+    <p>Algunos de estos proveedores pueden tratar datos fuera del Espacio Económico Europeo, en particular en Estados Unidos. En esos casos, la transferencia se ampara en <span class="pendiente">[PENDIENTE: para cada proveedor, su adhesión al Marco de Privacidad de Datos UE-EE. UU. o las cláusulas contractuales tipo de la Comisión Europea; verificar vigencia]</span>.</p>
+
+    <h2>8. Sus derechos</h2>
+    <p>Puede ejercer sus derechos de acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad, y retirar en cualquier momento los consentimientos prestados, escribiendo a <span class="pendiente">[PENDIENTE: email]</span> e indicando el derecho que desea ejercer. Si es necesario, le pediremos que acredite su identidad. Retirar el consentimiento no afecta a la licitud del tratamiento anterior.</p>
+    <p>Para darse de baja de las comunicaciones comerciales, puede usar también el enlace incluido en cada envío.</p>
+    <p>Si considera que no hemos tratado sus datos correctamente, puede presentar una reclamación ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</p>
+
+    <h2>9. Menores</h2>
+    <p>Este sitio está dirigido a empresas y profesionales. No recogemos conscientemente datos de menores de 14 años.</p>
+
+    <h2>10. Seguridad</h2>
+    <p>Aplicamos medidas técnicas y organizativas adecuadas para proteger sus datos frente a pérdida, alteración o acceso no autorizado.</p>
+
+    <h2>11. Cambios en esta política</h2>
+    <p>Podemos actualizar esta política. La versión vigente es siempre la publicada en esta página, con su fecha de última actualización.</p>
+  </main>
+
+  <!-- ===== COMPARTIDO: pie ===== -->
+  <footer class="pie">
+    <svg class="pie__ola" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 46C180 78 360 84 540 62S900 6 1080 14s270 44 360 58v8H0z"/></svg>
+    <div class="pie__violeta">
+      <div class="contenedor">
+        <p class="pie__datos"><span class="pendiente">[PENDIENTE: razón social]</span> · <span class="pendiente">[PENDIENTE: email de contacto]</span> · <span class="pendiente">[PENDIENTE: teléfono]</span></p>
+        <nav aria-label="Información legal">
+          <ul class="pie__enlaces">
+            <li><a href="aviso-legal.html">Aviso legal</a></li>
+            <li><a href="politica-privacidad.html">Política de privacidad</a></li>
+            <li><a href="politica-cookies.html">Política de cookies</a></li>
+            <li><button type="button" class="pie__boton" data-abrir-cookies>Configurar cookies</button></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <div class="pie__franja">
+      <div class="contenedor"><p>© <span data-anio></span> Freedoo</p></div>
+    </div>
+  </footer>
+  <!-- ===== FIN COMPARTIDO: pie ===== -->
+</div>
+
+<!-- ===== COMPARTIDO: lógica del banner de cookies ===== -->
+<script>
+(function () {
+  "use strict";
+  var banner = document.getElementById("cookies");
+  if (!banner) return;
+  var vistaResumen = banner.querySelector('[data-cookies-vista="resumen"]');
+  var vistaPanel = banner.querySelector('[data-cookies-vista="panel"]');
+  var chkAnalytics = document.getElementById("consent-analytics");
+  var chkAds = document.getElementById("consent-ads");
+  var focoAnterior = null;
+
+  // Reserva al final de la página la altura del banner para que no tape el pie.
+  function reservarEspacio() {
+    if (banner.hidden) document.documentElement.style.removeProperty("--alto-cookies");
+    else document.documentElement.style.setProperty("--alto-cookies", banner.offsetHeight + "px");
+  }
+  if (window.ResizeObserver) new ResizeObserver(reservarEspacio).observe(banner);
+  window.addEventListener("resize", reservarEspacio);
+
+  function mostrar(vista) {
+    var actual = freedooLeerConsentimiento();
+    chkAnalytics.checked = !!(actual && actual.analytics);
+    chkAds.checked = !!(actual && actual.ads);
+    vistaResumen.hidden = vista !== "resumen";
+    vistaPanel.hidden = vista !== "panel";
+    banner.setAttribute("aria-labelledby", vista === "panel" ? "cookies-titulo-panel" : "cookies-titulo");
+    banner.hidden = false;
+    reservarEspacio();
+  }
+  function ocultar() {
+    banner.hidden = true;
+    reservarEspacio();
+    if (focoAnterior && document.contains(focoAnterior)) focoAnterior.focus();
+    focoAnterior = null;
+  }
+
+  // Borra las cookies de terceros de una categoría cuando se retira el consentimiento.
+  function borrarCookies(analitica, publicidad) {
+    var patrones = [];
+    if (analitica) patrones.push(/^_ga($|_)/, /^_gid$/, /^_gat/, /^_clck$/, /^_clsk$/);
+    if (publicidad) patrones.push(/^_fbp$/, /^_fbc$/, /^_gcl_/);
+    if (!patrones.length) return;
+    var partes = location.hostname.split(".");
+    document.cookie.split(";").forEach(function (par) {
+      var nombre = par.split("=")[0].trim();
+      if (!nombre || !patrones.some(function (p) { return p.test(nombre); })) return;
+      document.cookie = nombre + "=; Max-Age=0; path=/";
+      for (var i = 0; i < partes.length - 1; i++) {
+        var dominio = partes.slice(i).join(".");
+        document.cookie = nombre + "=; Max-Age=0; path=/; domain=" + dominio;
+        document.cookie = nombre + "=; Max-Age=0; path=/; domain=." + dominio;
+      }
+    });
+  }
+
+  function guardar(analytics, ads) {
+    var anterior = freedooLeerConsentimiento();
+    var eleccion = { version: 1, fecha: new Date().toISOString(), analytics: !!analytics, ads: !!ads };
+    try { localStorage.setItem(FREEDOO_CONSENT_KEY, JSON.stringify(eleccion)); } catch (e) { /* sin almacenamiento: se volverá a preguntar */ }
+    var estado = freedooEstadoConsent(eleccion);
+    gtag('consent', 'update', estado);
+    freedooPush({
+      event: "consent_update",
+      analytics_storage: estado.analytics_storage,
+      ad_storage: estado.ad_storage,
+      ad_user_data: estado.ad_user_data,
+      ad_personalization: estado.ad_personalization
+    });
+    ocultar();
+    var retiraAnalitica = !!(anterior && anterior.analytics && !analytics);
+    var retiraPublicidad = !!(anterior && anterior.ads && !ads);
+    if (retiraAnalitica || retiraPublicidad) {
+      borrarCookies(retiraAnalitica, retiraPublicidad);
+      // Si las etiquetas ya estaban cargadas, se recarga para detenerlas por completo.
+      if (freedooGtmCargado) { location.reload(); return; }
+    }
+    if (analytics || ads) freedooCargarGTM();
+  }
+
+  banner.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-cookies]");
+    if (!b) return;
+    var accion = b.getAttribute("data-cookies");
+    if (accion === "aceptar") guardar(true, true);
+    else if (accion === "rechazar") guardar(false, false);
+    else if (accion === "guardar") guardar(chkAnalytics.checked, chkAds.checked);
+    else if (accion === "configurar") {
+      mostrar("panel");
+      document.getElementById("cookies-titulo-panel").focus();
+    }
+  });
+
+  // Enlace "Configurar cookies" del pie: reabre el panel.
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-abrir-cookies]");
+    if (!b) return;
+    e.preventDefault();
+    focoAnterior = b;
+    mostrar("panel");
+    document.getElementById("cookies-titulo-panel").focus();
+  });
+
+  // Año actual en el pie.
+  var anio = String(new Date().getFullYear());
+  Array.prototype.forEach.call(document.querySelectorAll("[data-anio]"), function (el) { el.textContent = anio; });
+
+  if (!freedooLeerConsentimiento()) mostrar("resumen");
+})();
+</script>
+<!-- ===== FIN COMPARTIDO: lógica del banner de cookies ===== -->
+</body>
+</html>

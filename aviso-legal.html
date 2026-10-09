@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="es-ES">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aviso legal · Freedoo</title>
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preload" href="assets/fonts/montserrat-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/montserrat-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- ===== COMPARTIDO: consentimiento y GTM (va el PRIMERO en el <head>) ===== -->
+<script>
+/* ---------- CONFIGURACIÓN ---------- */
+// ID del contenedor de Google Tag Manager. [PENDIENTE: ID de GTM]
+// Mientras sea el marcador "GTM-XXXXXXX", GTM no se carga.
+const GTM_ID = "GTM-XXXXXXX";
+const FREEDOO_CONSENT_KEY = "freedoo_consent";
+// Modo desarrollo: localhost, archivo local o ?debug=1. Imprime en consola cada dataLayer.push.
+const FREEDOO_DEBUG = /^(localhost|127\.0\.0\.1|)$/.test(location.hostname) || /[?&]debug=1(&|$)/.test(location.search);
+
+/* ---------- dataLayer + modo de consentimiento (antes de GTM) ---------- */
+window.dataLayer = window.dataLayer || [];
+if (FREEDOO_DEBUG) {
+  (function () {
+    var pushOriginal = window.dataLayer.push;
+    window.dataLayer.push = function () {
+      for (var i = 0; i < arguments.length; i++) console.log("[dataLayer.push]", arguments[i]);
+      return pushOriginal.apply(window.dataLayer, arguments);
+    };
+  })();
+}
+function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {
+  ad_storage: 'denied', analytics_storage: 'denied',
+  ad_user_data: 'denied', ad_personalization: 'denied',
+  wait_for_update: 500
+});
+gtag('set', 'ads_data_redaction', true);
+
+// Nunca se envían datos personales al dataLayer: estas claves se eliminan siempre.
+var FREEDOO_CLAVES_PII = ["nombre", "email", "telefono", "telefono_numero", "telefono_prefijo", "empresa", "que_resolver"];
+function freedooPush(evento) {
+  FREEDOO_CLAVES_PII.forEach(function (k) { if (k in evento) delete evento[k]; });
+  window.dataLayer.push(evento);
+}
+
+/* ---------- Lectura del consentimiento guardado ---------- */
+function freedooLeerConsentimiento() {
+  try {
+    var c = JSON.parse(localStorage.getItem(FREEDOO_CONSENT_KEY) || "null");
+    if (!c || !c.fecha) return null;
+    var limite = new Date(c.fecha);
+    if (isNaN(limite.getTime())) return null;
+    limite.setFullYear(limite.getFullYear() + 1); // se vuelve a preguntar a los 12 meses
+    if (Date.now() > limite.getTime()) return null;
+    return { analytics: !!c.analytics, ads: !!c.ads, fecha: c.fecha };
+  } catch (e) { return null; }
+}
+function freedooEstadoConsent(c) {
+  var a = c && c.analytics ? "granted" : "denied";
+  var p = c && c.ads ? "granted" : "denied";
+  return { analytics_storage: a, ad_storage: p, ad_user_data: p, ad_personalization: p };
+}
+
+/* ---------- Carga de GTM (solo con consentimiento y con un ID real) ---------- */
+var freedooGtmCargado = false;
+function freedooCargarGTM() {
+  if (freedooGtmCargado) return;
+  if (GTM_ID === "GTM-XXXXXXX" || !/^GTM-[A-Z0-9]+$/.test(GTM_ID)) {
+    if (FREEDOO_DEBUG) console.info("[Freedoo] GTM no se carga: falta el ID real en GTM_ID.");
+    return;
+  }
+  freedooGtmCargado = true;
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer',GTM_ID);
+}
+
+(function () {
+  var c = freedooLeerConsentimiento();
+  if (c) {
+    gtag('consent', 'update', freedooEstadoConsent(c));
+    if (c.analytics || c.ads) freedooCargarGTM();
+  }
+})();
+</script>
+<!-- ===== FIN COMPARTIDO: consentimiento y GTM ===== -->
+
+<style>
+/* ===== COMPARTIDO: estilos base ===== */
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:800;font-display:swap;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root {
+  --violeta: #8130D4;          /* principal y acento. ESTIMADO */
+  --violeta-oscuro: #6A22B3;   /* hover de botones (derivado, ajustable) */
+  --violeta-suave: #F3EAFC;    /* fondos de realce (derivado, ajustable) */
+  --gris-fondo: #F8F9FA;       /* secciones alternas. ESTIMADO */
+  --gris-oscuro: #343A40;      /* franja final del pie. ESTIMADO */
+  --texto: #212529;            /* ESTIMADO */
+  --blanco: #FFFFFF;
+  --radio: 6px;                /* esquinas ligeramente redondeadas */
+
+  /* Complementarios (derivados, ajustables) */
+  --violeta-claro: #E0CAF9;    /* palabra rotativa: 4,67:1 incluso sobre blanco puro bajo la capa negra del 65 % */
+  --texto-secundario: #495057;
+  --gris-icono: #6C757D;
+  --borde: #DEE2E6;
+  --error: #B3261E;
+  --amarillo-pendiente: #FFE45C;
+  --sombra: 0 8px 24px rgba(33, 37, 41, .08);
+  --ancho: 1120px;
+  --fuente: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --foco: var(--violeta);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--blanco);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  /* Mientras el banner de cookies está visible, deja sitio para poder leer el pie */
+  padding-bottom: var(--alto-cookies, 0px);
+}
+img, svg { display: block; max-width: 100%; }
+img { height: auto; }
+h1, h2, h3 { font-weight: 800; line-height: 1.18; letter-spacing: -.01em; margin: 0 0 .6em; }
+p { margin: 0 0 1em; }
+a { color: var(--violeta); text-underline-offset: .15em; }
+a:hover { color: var(--violeta-oscuro); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.contenedor { width: 100%; max-width: var(--ancho); margin: 0 auto; padding: 0 16px; }
+@media (min-width: 768px) { .contenedor { padding: 0 24px; } body { font-size: 1.0625rem; } }
+
+/* Marcador de dato pendiente: visible para que nadie lo publique por error */
+.pendiente {
+  background: var(--amarillo-pendiente);
+  color: #1A1A1A;
+  font-weight: 600;
+  padding: .05em .35em;
+  border-radius: 3px;
+  outline: 1px dashed #8A6D00;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+  min-height: 48px; padding: .8em 1.5em;
+  border: 2px solid var(--violeta); border-radius: var(--radio);
+  background: var(--violeta); color: var(--blanco);
+  font-weight: 600; font-size: 1rem; line-height: 1.2; text-align: center; text-decoration: none;
+  cursor: pointer; transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.btn:hover { background: var(--violeta-oscuro); border-color: var(--violeta-oscuro); color: var(--blanco); }
+.btn:disabled { cursor: progress; opacity: .75; }
+.btn--secundario { background: var(--blanco); color: var(--violeta); }
+.btn--secundario:hover { background: var(--violeta-suave); border-color: var(--violeta-oscuro); color: var(--violeta-oscuro); }
+
+/* Pie */
+.pie { margin-top: 0; }
+.pie__ola { display: block; width: 100%; height: 48px; color: var(--violeta); }
+@media (min-width: 768px) { .pie__ola { height: 72px; } }
+.pie__violeta { background: var(--violeta); color: var(--blanco); padding: 8px 0 28px; --foco: var(--blanco); }
+.pie__datos { margin: 0 0 14px; font-size: .9375rem; }
+.pie__enlaces { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: .9375rem; }
+.pie__enlaces a, .pie__boton { color: var(--blanco); text-decoration: underline; text-underline-offset: .2em; }
+.pie__enlaces a:hover, .pie__boton:hover { color: var(--blanco); text-decoration-thickness: 2px; }
+.pie__boton { background: none; border: 0; padding: 0; cursor: pointer; font-size: inherit; }
+.pie__franja { background: var(--gris-oscuro); color: var(--blanco); padding: 26px 0 28px; min-height: 80px; font-size: .875rem; }
+.pie__franja p { margin: 0; }
+
+/* Banner y panel de cookies */
+.cookies {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1100;
+  padding: 0 0 env(safe-area-inset-bottom);
+  background: var(--blanco); color: var(--texto);
+  border-top: 4px solid var(--violeta);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, .18);
+  max-height: 100vh; max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain;
+}
+.cookies__caja { max-width: 960px; margin: 0 auto; padding: 18px 16px 18px; }
+@media (min-width: 768px) { .cookies__caja { padding: 22px 24px; } }
+.cookies__titulo { font-size: 1.125rem; margin: 0 0 .4em; }
+.cookies__texto { font-size: .9375rem; margin: 0 0 14px; }
+.cookies__botones { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 640px) { .cookies__botones { grid-template-columns: repeat(3, 1fr); } }
+.cookies__btn { width: 100%; }
+.cookies__categorias { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; }
+.categoria { border: 1px solid var(--borde); border-radius: var(--radio); padding: 12px 14px; }
+.categoria__cabecera { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; }
+.categoria__nombre { font-weight: 800; }
+.categoria__estado { display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; color: var(--texto-secundario); }
+.categoria p { margin: 6px 0 0; font-size: .875rem; color: var(--texto-secundario); }
+.interruptor {
+  -webkit-appearance: none; appearance: none; flex: none; margin: 0;
+  width: 46px; height: 26px; border-radius: 13px; position: relative; cursor: pointer;
+  background: #ADB5BD; transition: background-color .2s ease;
+}
+.interruptor::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--blanco); transition: transform .2s ease; box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+.interruptor:checked { background: var(--violeta); }
+.interruptor:checked::after { transform: translateX(20px); }
+.interruptor:disabled { cursor: not-allowed; opacity: .6; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+  .interruptor, .interruptor::after, .btn { transition: none; }
+}
+/* ===== FIN COMPARTIDO: estilos base ===== */
+/* ===== PÁGINAS LEGALES ===== */
+.cabecera-legal { border-bottom: 1px solid var(--borde); background: var(--blanco); }
+.cabecera-legal .contenedor { padding-top: 16px; padding-bottom: 16px; }
+.cabecera-legal a { display: inline-block; border-radius: var(--radio); }
+.cabecera-legal img { width: 200px; }
+@media (min-width: 768px) { .cabecera-legal img { width: 240px; } }
+.legal { max-width: 720px; margin: 0 auto; padding: 48px 16px 72px; }
+@media (min-width: 768px) { .legal { padding: 64px 24px 96px; } }
+.legal h1 { color: var(--violeta); font-size: clamp(1.875rem, 1.4rem + 2vw, 2.5rem); margin-bottom: .3em; }
+.legal__fecha { color: var(--texto-secundario); font-size: .9375rem; margin-bottom: 2.2em; }
+.legal h2 { color: var(--violeta); font-size: clamp(1.25rem, 1.1rem + .6vw, 1.5rem); margin: 2em 0 .6em; }
+.legal ul { padding-left: 1.25em; margin: 0 0 1em; }
+.legal li { margin-bottom: .4em; }
+.tabla-scroll { width: 100%; overflow-x: auto; margin: 0 0 1.25em; border: 1px solid var(--borde); border-radius: var(--radio); }
+.tabla-scroll:focus-visible { outline-offset: 2px; }
+.legal table { width: 100%; border-collapse: collapse; font-size: .9375rem; line-height: 1.5; }
+.legal th, .legal td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--borde); }
+.legal th { background: var(--violeta-suave); font-weight: 800; }
+.legal tr:last-child td { border-bottom: 0; }
+.legal table.tabla-ancha { min-width: 600px; }
+@media (max-width: 479px) { .legal th, .legal td { padding: 8px 10px; } }
+.legal code { font-size: .875em; background: var(--gris-fondo); padding: .1em .35em; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ===== COMPARTIDO: banner de cookies ===== -->
+<div class="cookies" id="cookies" role="dialog" aria-modal="false" aria-labelledby="cookies-titulo" hidden>
+  <div class="cookies__caja">
+    <div data-cookies-vista="resumen">
+      <h2 class="cookies__titulo" id="cookies-titulo">Cookies</h2>
+      <p class="cookies__texto">Usamos cookies propias y de terceros (Google, Microsoft y Meta) para analizar el uso de esta web y medir la eficacia de nuestros anuncios. Solo se activan si las aceptas. Puedes aceptarlas todas, rechazarlas o elegir por categorías. Más información en la <a href="politica-cookies.html">Política de cookies</a>.</p>
+      <div class="cookies__botones">
+        <button type="button" class="btn cookies__btn" data-cookies="aceptar">Aceptar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="rechazar">Rechazar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="configurar">Configurar</button>
+      </div>
+    </div>
+    <div data-cookies-vista="panel" hidden>
+      <h2 class="cookies__titulo" id="cookies-titulo-panel" tabindex="-1">Configurar cookies</h2>
+      <ul class="cookies__categorias">
+        <li class="categoria">
+          <div class="categoria__cabecera">
+            <span class="categoria__nombre" id="cat-tecnicas">Técnicas</span>
+            <span class="categoria__estado">Siempre activas <input type="checkbox" class="interruptor" role="switch" checked disabled aria-labelledby="cat-tecnicas"></span>
+          </div>
+          <p>Necesarias para que la web funcione y para recordar tu elección de cookies.</p>
+        </li>
+        <li class="categoria">
+          <label class="categoria__cabecera" for="consent-analytics">
+            <span class="categoria__nombre">Analíticas</span>
+            <input type="checkbox" class="interruptor" role="switch" id="consent-analytics">
+          </label>
+          <p>Google Analytics 4 y Microsoft Clarity. Nos ayudan a entender cómo se usa la página.</p>
+        </li>
+        <li class="categoria">
+          <label class="categoria__cabecera" for="consent-ads">
+            <span class="categoria__nombre">Publicitarias</span>
+            <input type="checkbox" class="interruptor" role="switch" id="consent-ads">
+          </label>
+          <p>Píxel de Meta. Nos ayuda a medir la eficacia de nuestros anuncios en Meta.</p>
+        </li>
+      </ul>
+      <div class="cookies__botones">
+        <button type="button" class="btn cookies__btn" data-cookies="aceptar">Aceptar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="rechazar">Rechazar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="guardar">Guardar selección</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== FIN COMPARTIDO: banner de cookies ===== -->
+
+<div id="pagina">
+  <header class="cabecera-legal">
+    <div class="contenedor">
+      <a href="index.html"><img src="assets/logo.png" alt="Freedoo" width="840" height="111"></a>
+    </div>
+  </header>
+
+  <main class="legal">
+    <h1>Aviso legal</h1>
+    <p class="legal__fecha">Última actualización: <span class="pendiente">[PENDIENTE: fecha]</span></p>
+
+    <h2>1. Datos identificativos</h2>
+    <p>En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI), se informa de los datos del titular de este sitio web:</p>
+    <ul>
+      <li>Titular: <span class="pendiente">[PENDIENTE: razón social]</span></li>
+      <li>NIF: <span class="pendiente">[PENDIENTE: NIF]</span></li>
+      <li>Domicilio social: <span class="pendiente">[PENDIENTE: domicilio]</span></li>
+      <li>Email: <span class="pendiente">[PENDIENTE: email de contacto]</span></li>
+      <li>Teléfono: <span class="pendiente">[PENDIENTE: teléfono]</span></li>
+      <li>Datos registrales: inscrita en el Registro Mercantil de <span class="pendiente">[PENDIENTE: provincia]</span>, tomo <span class="pendiente">[PENDIENTE]</span>, folio <span class="pendiente">[PENDIENTE]</span>, hoja <span class="pendiente">[PENDIENTE]</span>.</li>
+      <li>Sitio web: <span class="pendiente">[PENDIENTE: URL de la landing]</span></li>
+    </ul>
+
+    <h2>2. Objeto</h2>
+    <p>Este sitio web informa sobre los servicios de consultoría e implantación de Odoo que presta <span class="pendiente">[PENDIENTE: razón social]</span> (en adelante, "Freedoo") y permite a los interesados solicitar una reunión.</p>
+
+    <h2>3. Condiciones de uso</h2>
+    <p>El acceso a este sitio web es gratuito y atribuye la condición de usuario. El usuario se compromete a utilizarlo de forma lícita, sin dañar el sitio ni impedir su uso por terceros, y a facilitar información veraz en los formularios.</p>
+
+    <h2>4. Propiedad intelectual e industrial</h2>
+    <p>Los contenidos de este sitio web (textos, diseño, logotipos e imágenes) son titularidad de Freedoo o de terceros que han autorizado su uso. No se permite su reproducción, distribución o transformación sin autorización expresa. Odoo es una marca de Odoo S.A.; Freedoo la menciona en su condición de partner oficial.</p>
+
+    <h2>5. Responsabilidad</h2>
+    <p>Freedoo procura que la información de este sitio sea exacta y esté actualizada, pero no garantiza la ausencia de errores ni la disponibilidad ininterrumpida del sitio. La información publicada tiene carácter orientativo y no constituye una oferta contractual: las condiciones de cada proyecto se concretan por escrito. Freedoo no se responsabiliza del contenido de sitios web de terceros enlazados desde este.</p>
+
+    <h2>6. Protección de datos y cookies</h2>
+    <p>El tratamiento de datos personales se rige por la <a href="politica-privacidad.html">Política de privacidad</a> y el uso de cookies por la <a href="politica-cookies.html">Política de cookies</a>.</p>
+
+    <h2>7. Legislación aplicable y jurisdicción</h2>
+    <p>Este aviso legal se rige por la legislación española. Para cualquier controversia, las partes se someten a los juzgados y tribunales del domicilio del titular, salvo que una norma imperativa establezca otro fuero.</p>
+  </main>
+
+  <!-- ===== COMPARTIDO: pie ===== -->
+  <footer class="pie">
+    <svg class="pie__ola" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 46C180 78 360 84 540 62S900 6 1080 14s270 44 360 58v8H0z"/></svg>
+    <div class="pie__violeta">
+      <div class="contenedor">
+        <p class="pie__datos"><span class="pendiente">[PENDIENTE: razón social]</span> · <span class="pendiente">[PENDIENTE: email de contacto]</span> · <span class="pendiente">[PENDIENTE: teléfono]</span></p>
+        <nav aria-label="Información legal">
+          <ul class="pie__enlaces">
+            <li><a href="aviso-legal.html">Aviso legal</a></li>
+            <li><a href="politica-privacidad.html">Política de privacidad</a></li>
+            <li><a href="politica-cookies.html">Política de cookies</a></li>
+            <li><button type="button" class="pie__boton" data-abrir-cookies>Configurar cookies</button></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <div class="pie__franja">
+      <div class="contenedor"><p>© <span data-anio></span> Freedoo</p></div>
+    </div>
+  </footer>
+  <!-- ===== FIN COMPARTIDO: pie ===== -->
+</div>
+
+<!-- ===== COMPARTIDO: lógica del banner de cookies ===== -->
+<script>
+(function () {
+  "use strict";
+  var banner = document.getElementById("cookies");
+  if (!banner) return;
+  var vistaResumen = banner.querySelector('[data-cookies-vista="resumen"]');
+  var vistaPanel = banner.querySelector('[data-cookies-vista="panel"]');
+  var chkAnalytics = document.getElementById("consent-analytics");
+  var chkAds = document.getElementById("consent-ads");
+  var focoAnterior = null;
+
+  // Reserva al final de la página la altura del banner para que no tape el pie.
+  function reservarEspacio() {
+    if (banner.hidden) document.documentElement.style.removeProperty("--alto-cookies");
+    else document.documentElement.style.setProperty("--alto-cookies", banner.offsetHeight + "px");
+  }
+  if (window.ResizeObserver) new ResizeObserver(reservarEspacio).observe(banner);
+  window.addEventListener("resize", reservarEspacio);
+
+  function mostrar(vista) {
+    var actual = freedooLeerConsentimiento();
+    chkAnalytics.checked = !!(actual && actual.analytics);
+    chkAds.checked = !!(actual && actual.ads);
+    vistaResumen.hidden = vista !== "resumen";
+    vistaPanel.hidden = vista !== "panel";
+    banner.setAttribute("aria-labelledby", vista === "panel" ? "cookies-titulo-panel" : "cookies-titulo");
+    banner.hidden = false;
+    reservarEspacio();
+  }
+  function ocultar() {
+    banner.hidden = true;
+    reservarEspacio();
+    if (focoAnterior && document.contains(focoAnterior)) focoAnterior.focus();
+    focoAnterior = null;
+  }
+
+  // Borra las cookies de terceros de una categoría cuando se retira el consentimiento.
+  function borrarCookies(analitica, publicidad) {
+    var patrones = [];
+    if (analitica) patrones.push(/^_ga($|_)/, /^_gid$/, /^_gat/, /^_clck$/, /^_clsk$/);
+    if (publicidad) patrones.push(/^_fbp$/, /^_fbc$/, /^_gcl_/);
+    if (!patrones.length) return;
+    var partes = location.hostname.split(".");
+    document.cookie.split(";").forEach(function (par) {
+      var nombre = par.split("=")[0].trim();
+      if (!nombre || !patrones.some(function (p) { return p.test(nombre); })) return;
+      document.cookie = nombre + "=; Max-Age=0; path=/";
+      for (var i = 0; i < partes.length - 1; i++) {
+        var dominio = partes.slice(i).join(".");
+        document.cookie = nombre + "=; Max-Age=0; path=/; domain=" + dominio;
+        document.cookie = nombre + "=; Max-Age=0; path=/; domain=." + dominio;
+      }
+    });
+  }
+
+  function guardar(analytics, ads) {
+    var anterior = freedooLeerConsentimiento();
+    var eleccion = { version: 1, fecha: new Date().toISOString(), analytics: !!analytics, ads: !!ads };
+    try { localStorage.setItem(FREEDOO_CONSENT_KEY, JSON.stringify(eleccion)); } catch (e) { /* sin almacenamiento: se volverá a preguntar */ }
+    var estado = freedooEstadoConsent(eleccion);
+    gtag('consent', 'update', estado);
+    freedooPush({
+      event: "consent_update",
+      analytics_storage: estado.analytics_storage,
+      ad_storage: estado.ad_storage,
+      ad_user_data: estado.ad_user_data,
+      ad_personalization: estado.ad_personalization
+    });
+    ocultar();
+    var retiraAnalitica = !!(anterior && anterior.analytics && !analytics);
+    var retiraPublicidad = !!(anterior && anterior.ads && !ads);
+    if (retiraAnalitica || retiraPublicidad) {
+      borrarCookies(retiraAnalitica, retiraPublicidad);
+      // Si las etiquetas ya estaban cargadas, se recarga para detenerlas por completo.
+      if (freedooGtmCargado) { location.reload(); return; }
+    }
+    if (analytics || ads) freedooCargarGTM();
+  }
+
+  banner.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-cookies]");
+    if (!b) return;
+    var accion = b.getAttribute("data-cookies");
+    if (accion === "aceptar") guardar(true, true);
+    else if (accion === "rechazar") guardar(false, false);
+    else if (accion === "guardar") guardar(chkAnalytics.checked, chkAds.checked);
+    else if (accion === "configurar") {
+      mostrar("panel");
+      document.getElementById("cookies-titulo-panel").focus();
+    }
+  });
+
+  // Enlace "Configurar cookies" del pie: reabre el panel.
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-abrir-cookies]");
+    if (!b) return;
+    e.preventDefault();
+    focoAnterior = b;
+    mostrar("panel");
+    document.getElementById("cookies-titulo-panel").focus();
+  });
+
+  // Año actual en el pie.
+  var anio = String(new Date().getFullYear());
+  Array.prototype.forEach.call(document.querySelectorAll("[data-anio]"), function (el) { el.textContent = anio; });
+
+  if (!freedooLeerConsentimiento()) mostrar("resumen");
+})();
+</script>
+<!-- ===== FIN COMPARTIDO: lógica del banner de cookies ===== -->
+</body>
+</html>
