@@ -1,0 +1,1645 @@
+<!doctype html>
+<html lang="es-ES">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Freedoo · Primero ordenamos tus procesos</title>
+<meta name="description" content="Somos Freedoo, partner oficial de Odoo. Antes de instalar nada, revisamos con gerencia y con quien usa las herramientas cada día qué necesita de verdad tu empresa.">
+<meta name="robots" content="noindex, follow">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preload" href="assets/fonts/montserrat-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/montserrat-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- ===== COMPARTIDO: consentimiento y GTM (va el PRIMERO en el <head>) ===== -->
+<script>
+/* ---------- CONFIGURACIÓN ---------- */
+// ID del contenedor de Google Tag Manager. [PENDIENTE: ID de GTM]
+// Mientras sea el marcador "GTM-XXXXXXX", GTM no se carga.
+const GTM_ID = "GTM-XXXXXXX";
+const FREEDOO_CONSENT_KEY = "freedoo_consent";
+// Modo desarrollo: localhost, archivo local o ?debug=1. Imprime en consola cada dataLayer.push.
+const FREEDOO_DEBUG = /^(localhost|127\.0\.0\.1|)$/.test(location.hostname) || /[?&]debug=1(&|$)/.test(location.search);
+
+/* ---------- dataLayer + modo de consentimiento (antes de GTM) ---------- */
+window.dataLayer = window.dataLayer || [];
+if (FREEDOO_DEBUG) {
+  (function () {
+    var pushOriginal = window.dataLayer.push;
+    window.dataLayer.push = function () {
+      for (var i = 0; i < arguments.length; i++) console.log("[dataLayer.push]", arguments[i]);
+      return pushOriginal.apply(window.dataLayer, arguments);
+    };
+  })();
+}
+function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {
+  ad_storage: 'denied', analytics_storage: 'denied',
+  ad_user_data: 'denied', ad_personalization: 'denied',
+  wait_for_update: 500
+});
+gtag('set', 'ads_data_redaction', true);
+
+// Nunca se envían datos personales al dataLayer: estas claves se eliminan siempre.
+var FREEDOO_CLAVES_PII = ["nombre", "email", "telefono", "telefono_numero", "telefono_prefijo", "empresa", "que_resolver"];
+function freedooPush(evento) {
+  FREEDOO_CLAVES_PII.forEach(function (k) { if (k in evento) delete evento[k]; });
+  window.dataLayer.push(evento);
+}
+
+/* ---------- Lectura del consentimiento guardado ---------- */
+function freedooLeerConsentimiento() {
+  try {
+    var c = JSON.parse(localStorage.getItem(FREEDOO_CONSENT_KEY) || "null");
+    if (!c || !c.fecha) return null;
+    var limite = new Date(c.fecha);
+    if (isNaN(limite.getTime())) return null;
+    limite.setFullYear(limite.getFullYear() + 1); // se vuelve a preguntar a los 12 meses
+    if (Date.now() > limite.getTime()) return null;
+    return { analytics: !!c.analytics, ads: !!c.ads, fecha: c.fecha };
+  } catch (e) { return null; }
+}
+function freedooEstadoConsent(c) {
+  var a = c && c.analytics ? "granted" : "denied";
+  var p = c && c.ads ? "granted" : "denied";
+  return { analytics_storage: a, ad_storage: p, ad_user_data: p, ad_personalization: p };
+}
+
+/* ---------- Carga de GTM (solo con consentimiento y con un ID real) ---------- */
+var freedooGtmCargado = false;
+function freedooCargarGTM() {
+  if (freedooGtmCargado) return;
+  if (GTM_ID === "GTM-XXXXXXX" || !/^GTM-[A-Z0-9]+$/.test(GTM_ID)) {
+    if (FREEDOO_DEBUG) console.info("[Freedoo] GTM no se carga: falta el ID real en GTM_ID.");
+    return;
+  }
+  freedooGtmCargado = true;
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer',GTM_ID);
+}
+
+(function () {
+  var c = freedooLeerConsentimiento();
+  if (c) {
+    gtag('consent', 'update', freedooEstadoConsent(c));
+    if (c.analytics || c.ads) freedooCargarGTM();
+  }
+})();
+</script>
+<!-- ===== FIN COMPARTIDO: consentimiento y GTM ===== -->
+
+<style>
+/* ===== COMPARTIDO: estilos base ===== */
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:400;font-display:swap;src:url("assets/fonts/montserrat-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:600;font-display:swap;src:url("assets/fonts/montserrat-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Montserrat";font-style:normal;font-weight:800;font-display:swap;src:url("assets/fonts/montserrat-latin-800-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+
+:root {
+  --violeta: #8130D4;          /* principal y acento. ESTIMADO */
+  --violeta-oscuro: #6A22B3;   /* hover de botones (derivado, ajustable) */
+  --violeta-suave: #F3EAFC;    /* fondos de realce (derivado, ajustable) */
+  --gris-fondo: #F8F9FA;       /* secciones alternas. ESTIMADO */
+  --gris-oscuro: #343A40;      /* franja final del pie. ESTIMADO */
+  --texto: #212529;            /* ESTIMADO */
+  --blanco: #FFFFFF;
+  --radio: 6px;                /* esquinas ligeramente redondeadas */
+
+  /* Complementarios (derivados, ajustables) */
+  --violeta-claro: #E0CAF9;    /* palabra rotativa: 4,67:1 incluso sobre blanco puro bajo la capa negra del 65 % */
+  --texto-secundario: #495057;
+  --gris-icono: #6C757D;
+  --borde: #DEE2E6;
+  --error: #B3261E;
+  --amarillo-pendiente: #FFE45C;
+  --sombra: 0 8px 24px rgba(33, 37, 41, .08);
+  --ancho: 1120px;
+  --fuente: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --foco: var(--violeta);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--blanco);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  /* Mientras el banner de cookies está visible, deja sitio para poder leer el pie */
+  padding-bottom: var(--alto-cookies, 0px);
+}
+img, svg { display: block; max-width: 100%; }
+img { height: auto; }
+h1, h2, h3 { font-weight: 800; line-height: 1.18; letter-spacing: -.01em; margin: 0 0 .6em; }
+p { margin: 0 0 1em; }
+a { color: var(--violeta); text-underline-offset: .15em; }
+a:hover { color: var(--violeta-oscuro); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 3px; }
+[hidden] { display: none !important; }
+
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.contenedor { width: 100%; max-width: var(--ancho); margin: 0 auto; padding: 0 16px; }
+@media (min-width: 768px) { .contenedor { padding: 0 24px; } body { font-size: 1.0625rem; } }
+
+/* Marcador de dato pendiente: visible para que nadie lo publique por error */
+.pendiente {
+  background: var(--amarillo-pendiente);
+  color: #1A1A1A;
+  font-weight: 600;
+  padding: .05em .35em;
+  border-radius: 3px;
+  outline: 1px dashed #8A6D00;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* Botones */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+  min-height: 48px; padding: .8em 1.5em;
+  border: 2px solid var(--violeta); border-radius: var(--radio);
+  background: var(--violeta); color: var(--blanco);
+  font-weight: 600; font-size: 1rem; line-height: 1.2; text-align: center; text-decoration: none;
+  cursor: pointer; transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.btn:hover { background: var(--violeta-oscuro); border-color: var(--violeta-oscuro); color: var(--blanco); }
+.btn:disabled { cursor: progress; opacity: .75; }
+.btn--secundario { background: var(--blanco); color: var(--violeta); }
+.btn--secundario:hover { background: var(--violeta-suave); border-color: var(--violeta-oscuro); color: var(--violeta-oscuro); }
+
+/* Pie */
+.pie { margin-top: 0; }
+.pie__ola { display: block; width: 100%; height: 48px; color: var(--violeta); }
+@media (min-width: 768px) { .pie__ola { height: 72px; } }
+.pie__violeta { background: var(--violeta); color: var(--blanco); padding: 8px 0 28px; --foco: var(--blanco); }
+.pie__datos { margin: 0 0 14px; font-size: .9375rem; }
+.pie__enlaces { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: .9375rem; }
+.pie__enlaces a, .pie__boton { color: var(--blanco); text-decoration: underline; text-underline-offset: .2em; }
+.pie__enlaces a:hover, .pie__boton:hover { color: var(--blanco); text-decoration-thickness: 2px; }
+.pie__boton { background: none; border: 0; padding: 0; cursor: pointer; font-size: inherit; }
+.pie__franja { background: var(--gris-oscuro); color: var(--blanco); padding: 26px 0 28px; min-height: 80px; font-size: .875rem; }
+.pie__franja p { margin: 0; }
+
+/* Banner y panel de cookies */
+.cookies {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1100;
+  padding: 0 0 env(safe-area-inset-bottom);
+  background: var(--blanco); color: var(--texto);
+  border-top: 4px solid var(--violeta);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, .18);
+  max-height: 100vh; max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain;
+}
+.cookies__caja { max-width: 960px; margin: 0 auto; padding: 18px 16px 18px; }
+@media (min-width: 768px) { .cookies__caja { padding: 22px 24px; } }
+.cookies__titulo { font-size: 1.125rem; margin: 0 0 .4em; }
+.cookies__texto { font-size: .9375rem; margin: 0 0 14px; }
+.cookies__botones { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 640px) { .cookies__botones { grid-template-columns: repeat(3, 1fr); } }
+.cookies__btn { width: 100%; }
+.cookies__categorias { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; }
+.categoria { border: 1px solid var(--borde); border-radius: var(--radio); padding: 12px 14px; }
+.categoria__cabecera { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; }
+.categoria__nombre { font-weight: 800; }
+.categoria__estado { display: inline-flex; align-items: center; gap: 8px; font-size: .875rem; color: var(--texto-secundario); }
+.categoria p { margin: 6px 0 0; font-size: .875rem; color: var(--texto-secundario); }
+.interruptor {
+  -webkit-appearance: none; appearance: none; flex: none; margin: 0;
+  width: 46px; height: 26px; border-radius: 13px; position: relative; cursor: pointer;
+  background: #ADB5BD; transition: background-color .2s ease;
+}
+.interruptor::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--blanco); transition: transform .2s ease; box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+.interruptor:checked { background: var(--violeta); }
+.interruptor:checked::after { transform: translateX(20px); }
+.interruptor:disabled { cursor: not-allowed; opacity: .6; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+  .interruptor, .interruptor::after, .btn { transition: none; }
+}
+/* ===== FIN COMPARTIDO: estilos base ===== */
+
+/* ===== LANDING ===== */
+body.con-sticky { padding-bottom: max(calc(72px + env(safe-area-inset-bottom)), var(--alto-cookies, 0px)); }
+@media (min-width: 768px) { body.con-sticky { padding-bottom: var(--alto-cookies, 0px); } }
+
+.seccion { padding: 64px 0; }
+.seccion--gris { background: var(--gris-fondo); }
+@media (min-width: 1024px) { .seccion { padding: 96px 0; } }
+.titulo-seccion { font-size: clamp(1.625rem, 1.2rem + 1.8vw, 2.375rem); }
+.titulo-seccion--centro { text-align: center; }
+.icono { width: 44px; height: 44px; color: var(--violeta); fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.btn--grande { min-height: 54px; padding: .95em 1.25em; font-size: 1.0625rem; }
+@media (min-width: 768px) { .btn--grande { padding: .95em 1.8em; } }
+.cta-centro { text-align: center; margin-top: 40px; }
+
+/* --- Hero --- */
+.hero { position: relative; isolation: isolate; overflow: hidden; background: #1F2226; color: var(--blanco); --foco: var(--blanco); }
+.hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.hero::before { content: ""; position: absolute; inset: 0; background: rgba(0, 0, 0, .65); z-index: -1; }
+.hero__barra { padding-top: 16px; }
+.hero__logo { display: inline-block; background: var(--blanco); padding: 10px 14px; border-radius: var(--radio); }
+.hero__logo img { width: 200px; }
+.hero__contenido { padding: 48px 16px 40px; }
+.hero__contenido > * { max-width: 780px; }
+.antetitulo { font-size: clamp(1.0625rem, .9rem + .8vw, 1.375rem); font-weight: 600; line-height: 1.45; margin: 0 0 18px; }
+.antetitulo__visual, .antetitulo__resto { display: block; }
+.rotador { display: grid; overflow: hidden; padding: .06em 0 .2em; }
+.rotador__palabra {
+  grid-area: 1 / 1; justify-self: start;
+  color: var(--violeta-claro); font-weight: 800;
+  text-decoration: underline; text-decoration-color: var(--violeta);
+  text-decoration-thickness: .14em; text-underline-offset: .2em; text-decoration-skip-ink: none;
+  opacity: 0; transform: translateY(110%);
+  transition: transform .3s ease, opacity .3s ease;
+}
+.rotador__palabra.is-activa { opacity: 1; transform: translateY(0); }
+.rotador__palabra.is-saliendo { opacity: 0; transform: translateY(-110%); }
+@media (min-width: 768px) { .rotador { display: inline-grid; vertical-align: baseline; } }
+@media (prefers-reduced-motion: reduce) {
+  .rotador__palabra, .rotador__palabra.is-activa, .rotador__palabra.is-saliendo { transform: none; transition: opacity .3s ease; }
+}
+.hero__titulo { font-size: clamp(2rem, 1.15rem + 3.6vw, 3.5rem); margin-bottom: 20px; }
+.hero__subtitulo { font-size: clamp(1.0625rem, 1rem + .35vw, 1.25rem); max-width: 680px; margin-bottom: 28px; }
+.hero__nota { font-size: .9375rem; margin: 12px 0 0; color: #E9ECEF; }
+.hero__pie { padding-bottom: 16px; font-size: .75rem; }
+@media (min-width: 768px) {
+  .hero__barra { padding-top: 24px; }
+  .hero__logo img { width: 250px; }
+  .hero__contenido { padding: 88px 24px 72px; }
+}
+@media (min-width: 1024px) { .hero__contenido { padding: 112px 24px 96px; } }
+
+/* --- El problema --- */
+.tarjetas { list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 16px; }
+@media (min-width: 768px) { .tarjetas { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+.tarjeta { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio); padding: 24px; box-shadow: var(--sombra); }
+.tarjeta .icono { margin-bottom: 16px; }
+.tarjeta p { margin: 0; font-size: 1.0625rem; font-weight: 600; }
+.destacado {
+  margin: 40px auto 0; max-width: 760px; text-align: center;
+  font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem); font-weight: 800; line-height: 1.3; color: var(--violeta);
+}
+
+/* --- La idea --- */
+.idea { display: grid; gap: 40px; align-items: center; }
+@media (min-width: 1024px) { .idea { grid-template-columns: 1.1fr 1fr; gap: 64px; } }
+.idea__texto p { font-size: 1.0625rem; margin: 0; }
+.orden { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.orden__bloque { border-radius: var(--radio); padding: 20px 22px; border: 2px solid var(--violeta); background: var(--blanco); }
+.orden__bloque--destacado { background: var(--violeta-suave); }
+.orden__etiqueta { display: block; font-size: .9375rem; font-weight: 600; color: var(--texto-secundario); }
+.orden__valor { display: block; font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem); font-weight: 800; color: var(--violeta); }
+.orden__flecha { width: 40px; height: 40px; align-self: center; color: var(--violeta); fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; transform: rotate(90deg); }
+@media (min-width: 640px) {
+  .orden { flex-direction: row; align-items: center; }
+  .orden__bloque { flex: 1; }
+  .orden__flecha { transform: none; flex: none; }
+}
+
+/* --- Cómo trabajamos --- */
+.linea { list-style: none; margin: 40px 0 0; padding: 0; }
+.hito { position: relative; padding: 0 0 28px 44px; }
+.hito:last-child { padding-bottom: 0; }
+.hito__punto { position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--violeta); box-shadow: 0 0 0 5px var(--violeta-suave); }
+.hito:not(:last-child)::after { content: ""; position: absolute; left: 11px; top: 30px; bottom: 6px; width: 2px; background: var(--violeta); opacity: .45; }
+.hito p { margin: 0; }
+.hito strong { display: block; font-weight: 800; font-size: 1.125rem; line-height: 1.3; margin-bottom: 4px; }
+@media (min-width: 1024px) {
+  .linea { display: grid; grid-template-columns: repeat(5, 1fr); gap: 28px; }
+  .hito { padding: 48px 0 0; }
+  .hito:last-child { padding-bottom: 0; }
+  .hito:not(:last-child)::after { left: 34px; right: -22px; top: 11px; bottom: auto; width: auto; height: 2px; }
+}
+
+/* --- Para quién --- */
+.para-quien { display: grid; gap: 24px; }
+@media (min-width: 768px) { .para-quien { grid-template-columns: 1fr 1fr; gap: 32px; } }
+.columna { border-radius: var(--radio); padding: 28px 24px; border: 1px solid var(--borde); }
+.columna--si { border: 2px solid var(--violeta); }
+.columna h2 { font-size: clamp(1.375rem, 1.15rem + .9vw, 1.75rem); }
+.lista-iconos { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.lista-iconos li { display: flex; gap: 12px; align-items: flex-start; }
+.lista-iconos svg { flex: none; width: 24px; height: 24px; margin-top: .15em; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.columna--si svg { color: var(--violeta); }
+.columna--no svg { color: var(--gris-icono); }
+
+/* --- Inversión --- */
+.precio-tarjeta {
+  max-width: 640px; margin: 0 auto; text-align: center;
+  background: var(--blanco); border: 1px solid var(--borde); border-top: 4px solid var(--violeta);
+  border-radius: var(--radio); padding: 36px 18px; box-shadow: var(--sombra);
+}
+@media (min-width: 768px) { .precio-tarjeta { padding: 48px 48px; } }
+.precio { margin: 8px 0 28px; }
+.precio__cifra { display: block; font-weight: 800; color: var(--violeta); line-height: 1.15; }
+.precio__importe { font-size: clamp(2.5rem, 1.9rem + 2.6vw, 3.5rem); }
+.precio__iva { font-size: clamp(1.125rem, 1rem + .5vw, 1.375rem); white-space: nowrap; }
+.precio__periodo { display: block; margin-top: 6px; font-weight: 600; color: var(--texto-secundario); }
+.precio__lista { list-style: none; margin: 0 0 32px; padding: 0; text-align: left; display: grid; gap: 14px; }
+.precio__lista li { position: relative; padding-left: 22px; }
+.precio__lista li::before { content: ""; position: absolute; left: 0; top: .62em; width: 8px; height: 8px; border-radius: 50%; background: var(--violeta); }
+
+/* --- Quiénes somos --- */
+.quienes { display: grid; gap: 32px; align-items: center; }
+@media (min-width: 1024px) { .quienes { grid-template-columns: 1fr 1fr; gap: 64px; } }
+.quienes__texto p { font-size: 1.0625rem; margin: 0; }
+.quienes__foto { margin: 0; }
+.quienes__foto img { width: 100%; border-radius: var(--radio); }
+.quienes__foto figcaption { margin-top: 10px; font-size: .875rem; }
+
+/* --- FAQ --- */
+.faq { max-width: 820px; margin: 32px auto 0; display: grid; gap: 12px; }
+.faq__item { background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio); }
+.faq__item summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  padding: 18px 20px; font-weight: 600; font-size: 1.0625rem; border-radius: var(--radio);
+}
+.faq__item summary::-webkit-details-marker { display: none; }
+.faq__item summary svg { flex: none; width: 22px; height: 22px; color: var(--violeta); fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
+.faq__item[open] summary svg { transform: rotate(180deg); }
+.faq__item[open] summary { color: var(--violeta); }
+.faq__respuesta { padding: 0 20px 18px; }
+.faq__respuesta p { margin: 0; }
+@media (prefers-reduced-motion: reduce) { .faq__item summary svg { transition: none; } }
+
+/* --- Cierre --- */
+.cierre__intro { text-align: center; max-width: 640px; margin: 0 auto 32px; }
+.cierre__intro p { font-size: 1.0625rem; margin: 0; }
+.cierre__form { max-width: 720px; margin: 0 auto; background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio); box-shadow: var(--sombra); padding: 24px 16px; }
+@media (min-width: 768px) { .cierre__form { padding: 36px 40px; } }
+
+/* --- Formulario (componente único) --- */
+.formulario { scroll-margin-top: 16px; }
+.formulario__progreso { margin-bottom: 24px; }
+.formulario__paso-texto { margin: 0 0 8px; font-weight: 600; font-size: .9375rem; color: var(--texto-secundario); }
+.barra { height: 6px; background: var(--violeta-suave); border-radius: 3px; overflow: hidden; }
+.barra__relleno { height: 100%; width: 50%; background: var(--violeta); border-radius: 3px; transition: width .3s ease; }
+.campo { margin: 0 0 22px; padding: 0; border: 0; min-width: 0; }
+.campo__pregunta, .campo__etiqueta { display: block; font-weight: 600; margin: 0 0 10px; padding: 0; line-height: 1.4; }
+.campo__opcional { font-weight: 400; color: var(--texto-secundario); }
+.opciones { display: grid; gap: 8px; }
+@media (min-width: 480px) { .opciones { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); } }
+.opcion, .check {
+  display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+  padding: 11px 12px; border: 1px solid var(--borde); border-radius: var(--radio); background: var(--blanco);
+  line-height: 1.4; transition: border-color .15s ease, background-color .15s ease;
+}
+.opcion:hover, .check:hover { border-color: var(--violeta); }
+.opcion:has(input:checked) { border-color: var(--violeta); background: var(--violeta-suave); }
+.opcion input, .check input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--violeta); cursor: pointer; }
+.check { border-color: transparent; padding: 6px 0; }
+.check:hover { border-color: transparent; }
+.check span { font-size: .9375rem; }
+.check--legal { padding: 4px 0; }
+.campo--consentimientos { margin-bottom: 10px; }
+.campo input[type="text"], .campo input[type="email"], .campo input[type="tel"], .campo select, .campo textarea {
+  width: 100%; min-height: 48px; padding: 10px 12px; background: var(--blanco);
+  border: 1px solid #ADB5BD; border-radius: var(--radio); font-size: 1rem;
+}
+.campo textarea { min-height: 112px; resize: vertical; line-height: 1.5; }
+.campo input:focus-visible, .campo select:focus-visible, .campo textarea:focus-visible { outline-offset: 1px; border-color: var(--violeta); }
+.telefono { display: grid; grid-template-columns: minmax(0, 132px) minmax(0, 1fr); gap: 8px; }
+.campo__contador { margin: 6px 0 0; font-size: .8125rem; color: var(--texto-secundario); text-align: right; }
+.campo__error { display: flex; gap: 6px; align-items: flex-start; margin: 8px 0 0; color: var(--error); font-weight: 600; font-size: .875rem; line-height: 1.4; }
+.campo__error::before { content: "!"; flex: none; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--error); color: var(--blanco); font-size: .75rem; font-weight: 800; margin-top: 1px; }
+.campo--error .opcion { border-color: var(--error); }
+.campo--error input[type="text"], .campo--error input[type="email"], .campo--error input[type="tel"] { border-color: var(--error); border-width: 2px; }
+.formulario__aviso-ia { margin: 18px 0 16px; padding: 12px 14px; background: var(--violeta-suave); border-radius: var(--radio); font-size: .9375rem; font-weight: 600; }
+.formulario__error-envio { margin: 0 0 16px; padding: 12px 14px; border: 2px solid var(--error); border-radius: var(--radio); color: var(--error); font-weight: 600; }
+.formulario__acciones { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.formulario__acciones .btn { flex: 1 1 auto; }
+@media (min-width: 480px) { .formulario__acciones .btn { flex: 0 1 auto; min-width: 160px; } .formulario__acciones--doble { justify-content: space-between; } }
+.btn[aria-busy="true"]::after {
+  content: ""; width: 1em; height: 1em; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.45); border-top-color: var(--blanco); animation: girar .8s linear infinite;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .btn[aria-busy="true"]::after { animation-duration: 2.4s; } .barra__relleno, .opcion { transition: none; } }
+
+/* --- Página de gracias --- */
+.gracias { text-align: center; padding: 16px 0 8px; }
+.gracias:focus { outline: none; }
+.gracias__icono { width: 56px; height: 56px; margin: 0 auto 16px; color: var(--violeta); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.gracias__titulo { font-size: clamp(1.375rem, 1.15rem + 1vw, 1.875rem); }
+.gracias p { max-width: 520px; margin: 0 auto 20px; font-size: 1.0625rem; }
+
+/* --- Pop-up --- */
+.modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: stretch; justify-content: center; }
+.modal__fondo { position: absolute; inset: 0; background: rgba(20, 16, 28, .72); opacity: 0; transition: opacity .2s ease; }
+.modal__panel {
+  position: relative; display: flex; flex-direction: column;
+  width: 100%; height: 100%; background: var(--blanco); outline: none;
+  opacity: 0; transform: translateY(12px); transition: opacity .2s ease, transform .2s ease;
+}
+.modal.is-visible .modal__fondo { opacity: 1; }
+.modal.is-visible .modal__panel { opacity: 1; transform: none; }
+.modal__cabecera { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 16px; border-bottom: 1px solid var(--borde); padding-top: calc(12px + env(safe-area-inset-top)); }
+.modal__titulo { margin: 0; font-size: 1.125rem; }
+.modal__cerrar { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: var(--radio); background: transparent; color: var(--texto); cursor: pointer; }
+.modal__cerrar:hover { background: var(--gris-fondo); }
+.modal__cerrar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; }
+.modal__cuerpo { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 20px 16px calc(24px + env(safe-area-inset-bottom)); }
+@media (min-width: 768px) {
+  .modal { align-items: center; padding: 24px; }
+  .modal__panel { max-width: 560px; height: auto; max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px); border-radius: var(--radio); box-shadow: 0 24px 64px rgba(0,0,0,.3); }
+  .modal__cabecera { padding: 14px 14px 14px 24px; }
+  .modal__cuerpo { padding: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { .modal__fondo, .modal__panel { transition: none; transform: none; } }
+html.modal-abierto, html.modal-abierto body { overflow: hidden; }
+
+/* --- Botón sticky --- */
+.sticky {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: var(--blanco); box-shadow: 0 -4px 18px rgba(0, 0, 0, .12);
+}
+.sticky .btn { width: 100%; }
+@media (min-width: 768px) {
+  .sticky { left: auto; right: 24px; bottom: 24px; padding: 0; background: transparent; box-shadow: none; }
+  .sticky .btn { width: auto; box-shadow: 0 10px 28px rgba(129, 48, 212, .38); }
+}
+html.modal-abierto .sticky { display: none; }
+</style>
+</head>
+<body class="con-sticky">
+
+<!-- ===== COMPARTIDO: banner de cookies ===== -->
+<div class="cookies" id="cookies" role="dialog" aria-modal="false" aria-labelledby="cookies-titulo" hidden>
+  <div class="cookies__caja">
+    <div data-cookies-vista="resumen">
+      <h2 class="cookies__titulo" id="cookies-titulo">Cookies</h2>
+      <p class="cookies__texto">Usamos cookies propias y de terceros (Google, Microsoft y Meta) para analizar el uso de esta web y medir la eficacia de nuestros anuncios. Solo se activan si las aceptas. Puedes aceptarlas todas, rechazarlas o elegir por categorías. Más información en la <a href="politica-cookies.html">Política de cookies</a>.</p>
+      <div class="cookies__botones">
+        <button type="button" class="btn cookies__btn" data-cookies="aceptar">Aceptar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="rechazar">Rechazar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="configurar">Configurar</button>
+      </div>
+    </div>
+    <div data-cookies-vista="panel" hidden>
+      <h2 class="cookies__titulo" id="cookies-titulo-panel" tabindex="-1">Configurar cookies</h2>
+      <ul class="cookies__categorias">
+        <li class="categoria">
+          <div class="categoria__cabecera">
+            <span class="categoria__nombre" id="cat-tecnicas">Técnicas</span>
+            <span class="categoria__estado">Siempre activas <input type="checkbox" class="interruptor" role="switch" checked disabled aria-labelledby="cat-tecnicas"></span>
+          </div>
+          <p>Necesarias para que la web funcione y para recordar tu elección de cookies.</p>
+        </li>
+        <li class="categoria">
+          <label class="categoria__cabecera" for="consent-analytics">
+            <span class="categoria__nombre">Analíticas</span>
+            <input type="checkbox" class="interruptor" role="switch" id="consent-analytics">
+          </label>
+          <p>Google Analytics 4 y Microsoft Clarity. Nos ayudan a entender cómo se usa la página.</p>
+        </li>
+        <li class="categoria">
+          <label class="categoria__cabecera" for="consent-ads">
+            <span class="categoria__nombre">Publicitarias</span>
+            <input type="checkbox" class="interruptor" role="switch" id="consent-ads">
+          </label>
+          <p>Píxel de Meta. Nos ayuda a medir la eficacia de nuestros anuncios en Meta.</p>
+        </li>
+      </ul>
+      <div class="cookies__botones">
+        <button type="button" class="btn cookies__btn" data-cookies="aceptar">Aceptar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="rechazar">Rechazar todas</button>
+        <button type="button" class="btn cookies__btn" data-cookies="guardar">Guardar selección</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ===== FIN COMPARTIDO: banner de cookies ===== -->
+
+<div id="pagina">
+
+  <!-- 4.1 Cabecera (hero) -->
+  <header class="hero">
+    <img class="hero__img" src="assets/hero-oficina.jpg" alt="" width="1920" height="1080" fetchpriority="high" decoding="async">
+    <div class="contenedor hero__barra">
+      <span class="hero__logo"><img src="assets/logo.png" alt="Freedoo" width="840" height="111"></span>
+    </div>
+    <div class="contenedor hero__contenido">
+      <p class="antetitulo">
+        <span class="sr-only">Para ingenierías, estudios de arquitectura, consultoras de negocio e IT y empresas industriales que gestionan con Excel, notas y programas sueltos</span>
+        <span class="antetitulo__visual" aria-hidden="true">
+          <span class="antetitulo__para">Para</span>
+          <span class="rotador" data-rotador>
+            <span class="rotador__palabra is-activa">ingenierías</span>
+            <span class="rotador__palabra">estudios de arquitectura</span>
+            <span class="rotador__palabra">consultoras de negocio e IT</span>
+            <span class="rotador__palabra">empresas industriales</span>
+          </span>
+          <span class="antetitulo__resto">que gestionan con Excel, notas y programas sueltos</span>
+        </span>
+      </p>
+      <h1 class="hero__titulo">Primero ordenamos tus procesos. Después, Odoo y la IA.</h1>
+      <p class="hero__subtitulo">Somos Freedoo, partner oficial de Odoo. Antes de instalar nada, revisamos con gerencia y con quien usa las herramientas cada día qué necesita de verdad tu empresa.</p>
+      <button type="button" class="btn btn--grande" data-abrir-form data-cta="hero">Comprobar si encajamos</button>
+      <p class="hero__nota">Unas preguntas breves y te llamamos para agendar una reunión.</p>
+    </div>
+    <div class="contenedor hero__pie">
+      <span class="pendiente">[PENDIENTE: foto real de oficina o equipo]</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 4.2 El problema -->
+    <section class="seccion seccion--gris" aria-labelledby="t-problema">
+      <div class="contenedor">
+        <h2 class="titulo-seccion titulo-seccion--centro" id="t-problema">¿Te suena?</h2>
+        <ul class="tarjetas">
+          <li class="tarjeta">
+            <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9.5h18M3 14.5h18M9 4v16M15 4v16"/></svg>
+            <p>Un Excel para una cosa y otro Excel para otra.</p>
+          </li>
+          <li class="tarjeta">
+            <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>
+            <p>Un programa para facturar que no habla con nada más.</p>
+          </li>
+          <li class="tarjeta">
+            <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>
+            <p>Lo que no cabe en ninguno, apuntado a mano.</p>
+          </li>
+        </ul>
+        <p class="destacado">Cada dato vive en un sitio distinto.</p>
+      </div>
+    </section>
+
+    <!-- 4.3 La idea -->
+    <section class="seccion" aria-labelledby="t-idea">
+      <div class="contenedor idea">
+        <div class="idea__texto">
+          <h2 class="titulo-seccion" id="t-idea">El problema no es el Excel.</h2>
+          <p>Es que los procesos no están ordenados. Si pasas ese desorden a un sistema nuevo, solo lo cambias de sitio. Y la IA tampoco lo arregla: la IA no sirve para todo. Primero se ordena. Después, la IA.</p>
+        </div>
+        <div class="orden">
+          <p class="orden__bloque"><span class="orden__etiqueta">Primero:</span> <span class="orden__valor">ordenar</span></p>
+          <svg class="orden__flecha" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          <p class="orden__bloque orden__bloque--destacado"><span class="orden__etiqueta">Después:</span> <span class="orden__valor">Odoo + IA</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4.4 Cómo trabajamos -->
+    <section class="seccion seccion--gris" aria-labelledby="t-como">
+      <div class="contenedor">
+        <h2 class="titulo-seccion titulo-seccion--centro" id="t-como">Así trabajamos, en este orden</h2>
+        <ol class="linea">
+          <li class="hito"><span class="hito__punto" aria-hidden="true"></span><p><strong>Entendemos tu empresa.</strong> Consultoría de necesidades con gerencia y con quienes usan las herramientas cada día. Si antes de Odoo toca organizarse por dentro, te lo decimos.</p></li>
+          <li class="hito"><span class="hito__punto" aria-hidden="true"></span><p><strong>Ordenamos los procesos.</strong></p></li>
+          <li class="hito"><span class="hito__punto" aria-hidden="true"></span><p><strong>Tú nos entregas los datos depurados</strong> antes de migrar.</p></li>
+          <li class="hito"><span class="hito__punto" aria-hidden="true"></span><p><strong>Implantamos Odoo Enterprise y formamos a tu equipo.</strong></p></li>
+          <li class="hito"><span class="hito__punto" aria-hidden="true"></span><p><strong>La IA, después,</strong> sobre procesos que ya funcionan.</p></li>
+        </ol>
+        <div class="cta-centro">
+          <button type="button" class="btn btn--grande" data-abrir-form data-cta="como_trabajamos">Comprobar si encajamos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4.5 Para quién es y para quién no -->
+    <section class="seccion" aria-label="Para quién es y para quién no">
+      <div class="contenedor para-quien">
+        <div class="columna columna--si">
+          <h2>Es para ti si:</h2>
+          <ul class="lista-iconos">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Diriges la empresa o eres responsable de IT.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Gestionáis con Excel, notas y programas que no se hablan.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Quieres ordenar los procesos antes de cambiar de sistema.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Estás dispuesto a preparar y entregar tus datos depurados.</span></li>
+          </ul>
+        </div>
+        <div class="columna columna--no">
+          <h2>No es para ti si:</h2>
+          <ul class="lista-iconos">
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg><span>Buscas que instalemos un programa sin revisar cómo trabajas.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg><span>Necesitas desarrollos a medida complejos o conectar Odoo con sistemas externos.</span></li>
+            <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg><span>Esperas que la IA lo resuelva todo.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4.6 Inversión -->
+    <section class="seccion seccion--gris" aria-labelledby="t-inversion">
+      <div class="contenedor">
+        <div class="precio-tarjeta">
+          <h2 class="titulo-seccion" id="t-inversion">La inversión</h2>
+          <p class="precio">
+            <span class="precio__cifra"><span class="precio__importe">495&nbsp;€</span> <span class="precio__iva">+ IVA al mes</span></span>
+            <span class="precio__periodo">durante el primer año</span>
+          </p>
+          <ul class="precio__lista">
+            <li>Además, hay un coste inicial de implantación, que incluye la consultoría inicial y la formación. Te lo detallamos en la reunión.</li>
+            <li>Las licencias y el servidor de Odoo se contratan directamente con Odoo y dependen del número de usuarios.</li>
+          </ul>
+          <button type="button" class="btn btn--grande" data-abrir-form data-cta="inversion">Comprobar si encajamos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4.7 Quiénes somos -->
+    <section class="seccion" aria-labelledby="t-quienes">
+      <div class="contenedor quienes">
+        <div class="quienes__texto">
+          <h2 class="titulo-seccion" id="t-quienes">Freedoo, partner oficial de Odoo</h2>
+          <p>Trabajamos con cercanía y transparencia, y acompañamos al cliente durante todo el proyecto. Preferimos pocos clientes bien acompañados a muchos mal atendidos.</p>
+        </div>
+        <figure class="quienes__foto">
+          <img src="assets/equipo.jpg" alt="Equipo de Freedoo" width="1200" height="800" loading="lazy" decoding="async">
+          <figcaption><span class="pendiente">[PENDIENTE: foto real del equipo con nombre y cargo]</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 4.8 Preguntas frecuentes -->
+    <section class="seccion seccion--gris" aria-labelledby="t-faq">
+      <div class="contenedor">
+        <h2 class="titulo-seccion titulo-seccion--centro" id="t-faq">Preguntas frecuentes</h2>
+        <div class="faq">
+          <details class="faq__item">
+            <summary><span>¿Cuánto cuesta?</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+            <div class="faq__respuesta"><p>La cuota es de 495&nbsp;€ + IVA al mes durante el primer año. A eso se suma un coste inicial de implantación, que incluye la consultoría inicial y la formación, y las licencias de Odoo, que van aparte y dependen del número de usuarios. Te detallamos todo en la reunión.</p></div>
+          </details>
+          <details class="faq__item">
+            <summary><span>¿Las licencias de Odoo están incluidas?</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+            <div class="faq__respuesta"><p>No. Las licencias y el servidor se contratan directamente con Odoo. En la reunión te explicamos cómo y qué necesitas.</p></div>
+          </details>
+          <details class="faq__item">
+            <summary><span>¿Por qué no usar ChatGPT u otra IA gratuita?</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+            <div class="faq__respuesta"><p>Una IA genérica no conoce tus procesos ni está conectada a tus datos. Desarrollarla, configurarla e integrarla tiene un coste. Y sin procesos ordenados, ninguna IA lo arregla.</p></div>
+          </details>
+          <details class="faq__item">
+            <summary><span>¿Qué tengo que hacer yo?</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+            <div class="faq__respuesta"><p>Participar en la consultoría inicial, entregarnos tus datos depurados y contratar las licencias con Odoo. La implantación y la formación las hacemos nosotros.</p></div>
+          </details>
+          <details class="faq__item">
+            <summary><span>¿Hacéis desarrollos a medida?</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+            <div class="faq__respuesta"><p>Los desarrollos a medida complejos y los conectores con sistemas externos no están incluidos.</p></div>
+          </details>
+          <details class="faq__item">
+            <summary><span>¿Qué pasa cuando envío el formulario?</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+            <div class="faq__respuesta"><p>En unos minutos te llamará nuestro asistente de inteligencia artificial para confirmar tu interés y agendar una reunión con nuestro equipo.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4.9 Cierre con formulario incrustado -->
+    <section class="seccion" aria-labelledby="t-cierre">
+      <div class="contenedor">
+        <div class="cierre__intro">
+          <h2 class="titulo-seccion" id="t-cierre">¿Vemos si encajamos?</h2>
+          <p>Responde unas preguntas sobre tu empresa y te llamaremos para agendar una reunión.</p>
+        </div>
+        <div class="cierre__form" data-form-host="inline"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== COMPARTIDO: pie ===== -->
+  <footer class="pie">
+    <svg class="pie__ola" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path fill="currentColor" d="M0 46C180 78 360 84 540 62S900 6 1080 14s270 44 360 58v8H0z"/></svg>
+    <div class="pie__violeta">
+      <div class="contenedor">
+        <p class="pie__datos"><span class="pendiente">[PENDIENTE: razón social]</span> · <span class="pendiente">[PENDIENTE: email de contacto]</span> · <span class="pendiente">[PENDIENTE: teléfono]</span></p>
+        <nav aria-label="Información legal">
+          <ul class="pie__enlaces">
+            <li><a href="aviso-legal.html">Aviso legal</a></li>
+            <li><a href="politica-privacidad.html">Política de privacidad</a></li>
+            <li><a href="politica-cookies.html">Política de cookies</a></li>
+            <li><button type="button" class="pie__boton" data-abrir-cookies>Configurar cookies</button></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+    <div class="pie__franja">
+      <div class="contenedor"><p>© <span data-anio></span> Freedoo</p></div>
+    </div>
+  </footer>
+  <!-- ===== FIN COMPARTIDO: pie ===== -->
+
+  <!-- 4.11 Botón sticky -->
+  <div class="sticky">
+    <button type="button" class="btn" data-abrir-form data-cta="sticky">Comprobar si encajamos</button>
+  </div>
+</div>
+
+<!-- 5.1 Pop-up del formulario -->
+<div class="modal" id="modal-form" hidden>
+  <div class="modal__fondo" data-cerrar-modal></div>
+  <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="modal-titulo" tabindex="-1">
+    <div class="modal__cabecera">
+      <h2 class="modal__titulo" id="modal-titulo">¿Vemos si encajamos?</h2>
+      <button type="button" class="modal__cerrar" aria-label="Cerrar" data-cerrar-modal>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal__cuerpo" data-form-host="popup"></div>
+  </div>
+</div>
+
+<!-- 5. Formulario: un único componente. Se clona en el pop-up y en la sección de cierre. -->
+<template id="tpl-formulario">
+  <form class="formulario" novalidate autocomplete="on" data-formulario>
+    <div class="formulario__progreso">
+      <p class="formulario__paso-texto" data-paso-texto aria-live="polite">Paso 1 de 2 · Tu empresa</p>
+      <div class="barra" aria-hidden="true"><div class="barra__relleno" data-barra></div></div>
+    </div>
+
+    <!-- Paso 1 · Tu empresa (todo obligatorio) -->
+    <div class="formulario__paso" data-paso="1">
+      <fieldset class="campo" data-campo="sector">
+        <legend class="campo__pregunta">¿A qué se dedica tu empresa?</legend>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="sector" value="ingenieria" required><span>Ingeniería</span></label>
+          <label class="opcion"><input type="radio" name="sector" value="arquitectura"><span>Arquitectura</span></label>
+          <label class="opcion"><input type="radio" name="sector" value="consultoria"><span>Consultoría de negocio o IT</span></label>
+          <label class="opcion"><input type="radio" name="sector" value="industria"><span>Industria o metalmecánica</span></label>
+          <label class="opcion"><input type="radio" name="sector" value="otro"><span>Otro</span></label>
+        </div>
+        <p class="campo__error" id="err-sector" data-error hidden></p>
+      </fieldset>
+
+      <fieldset class="campo" data-campo="cargo">
+        <legend class="campo__pregunta">¿Cuál es tu cargo?</legend>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="cargo" value="gerencia" required><span>Gerencia o dirección</span></label>
+          <label class="opcion"><input type="radio" name="cargo" value="responsable_it"><span>Responsable de IT</span></label>
+          <label class="opcion"><input type="radio" name="cargo" value="administracion"><span>Administración o contabilidad</span></label>
+          <label class="opcion"><input type="radio" name="cargo" value="otro"><span>Otro</span></label>
+        </div>
+        <p class="campo__error" id="err-cargo" data-error hidden></p>
+      </fieldset>
+
+      <fieldset class="campo" data-campo="tamano_empresa">
+        <legend class="campo__pregunta">¿Cuántas personas trabajan en la empresa?</legend>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="tamano_empresa" value="1_9" required><span>1–9</span></label>
+          <label class="opcion"><input type="radio" name="tamano_empresa" value="10_50"><span>10–50</span></label>
+          <label class="opcion"><input type="radio" name="tamano_empresa" value="51_250"><span>51–250</span></label>
+          <label class="opcion"><input type="radio" name="tamano_empresa" value="mas_250"><span>Más de 250</span></label>
+        </div>
+        <p class="campo__error" id="err-tamano_empresa" data-error hidden></p>
+      </fieldset>
+
+      <fieldset class="campo" data-campo="gestion_actual">
+        <legend class="campo__pregunta">¿Cómo gestionáis hoy la empresa? (puedes marcar varias)</legend>
+        <div class="opciones">
+          <label class="opcion"><input type="checkbox" name="gestion_actual" value="excel"><span>Excel</span></label>
+          <label class="opcion"><input type="checkbox" name="gestion_actual" value="notas_a_mano"><span>Notas a mano</span></label>
+          <label class="opcion"><input type="checkbox" name="gestion_actual" value="programas_sin_conectar"><span>Varios programas sin conectar</span></label>
+          <label class="opcion"><input type="checkbox" name="gestion_actual" value="erp"><span>Ya tenemos un ERP</span></label>
+          <label class="opcion"><input type="checkbox" name="gestion_actual" value="odoo"><span>Ya usamos Odoo</span></label>
+        </div>
+        <p class="campo__error" id="err-gestion_actual" data-error hidden></p>
+      </fieldset>
+
+      <fieldset class="campo" data-campo="decisor">
+        <legend class="campo__pregunta">¿Quién toma la decisión de un proyecto así?</legend>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="decisor" value="yo" required><span>Yo</span></label>
+          <label class="opcion"><input type="radio" name="decisor" value="yo_con_socios"><span>Yo, con socios o dirección</span></label>
+          <label class="opcion"><input type="radio" name="decisor" value="otra_persona"><span>Otra persona</span></label>
+        </div>
+        <p class="campo__error" id="err-decisor" data-error hidden></p>
+      </fieldset>
+
+      <fieldset class="campo" data-campo="plazo_inicio">
+        <legend class="campo__pregunta">¿Cuándo queréis empezar?</legend>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="plazo_inicio" value="este_trimestre" required><span>Este trimestre</span></label>
+          <label class="opcion"><input type="radio" name="plazo_inicio" value="3_6_meses"><span>En 3–6 meses</span></label>
+          <label class="opcion"><input type="radio" name="plazo_inicio" value="mas_adelante"><span>Más adelante</span></label>
+          <label class="opcion"><input type="radio" name="plazo_inicio" value="solo_informandome"><span>Solo me estoy informando</span></label>
+        </div>
+        <p class="campo__error" id="err-plazo_inicio" data-error hidden></p>
+      </fieldset>
+
+      <fieldset class="campo" data-campo="necesita_conectores">
+        <legend class="campo__pregunta">¿Necesitáis conectar Odoo con sistemas externos o desarrollos a medida complejos?</legend>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="necesita_conectores" value="si" required><span>Sí</span></label>
+          <label class="opcion"><input type="radio" name="necesita_conectores" value="no"><span>No</span></label>
+          <label class="opcion"><input type="radio" name="necesita_conectores" value="no_lo_se"><span>No lo sé</span></label>
+        </div>
+        <p class="campo__error" id="err-necesita_conectores" data-error hidden></p>
+      </fieldset>
+
+      <fieldset class="campo" data-campo="inversion_primer_ano">
+        <legend class="campo__pregunta">¿Qué inversión contempláis para el primer año?</legend>
+        <div class="opciones">
+          <label class="opcion"><input type="radio" name="inversion_primer_ano" value="menos_10000" required><span>Menos de 10.000&nbsp;€</span></label>
+          <label class="opcion"><input type="radio" name="inversion_primer_ano" value="10000_20000"><span>10.000–20.000&nbsp;€</span></label>
+          <label class="opcion"><input type="radio" name="inversion_primer_ano" value="mas_20000"><span>Más de 20.000&nbsp;€</span></label>
+          <label class="opcion"><input type="radio" name="inversion_primer_ano" value="sin_definir"><span>Aún no lo hemos definido</span></label>
+        </div>
+        <p class="campo__error" id="err-inversion_primer_ano" data-error hidden></p>
+      </fieldset>
+
+      <div class="campo" data-campo="acepta_datos_depurados">
+        <label class="check"><input type="checkbox" name="acepta_datos_depurados" value="si" required><span>Entiendo que preparar y entregar los datos depurados es parte de mi trabajo en el proyecto.</span></label>
+        <p class="campo__error" id="err-acepta_datos_depurados" data-error hidden></p>
+      </div>
+
+      <div class="formulario__acciones">
+        <button type="button" class="btn" data-continuar>Continuar</button>
+      </div>
+    </div>
+
+    <!-- Paso 2 · Tus datos -->
+    <div class="formulario__paso" data-paso="2" hidden>
+      <div class="campo" data-campo="nombre">
+        <label class="campo__etiqueta" for="f-nombre">Nombre</label>
+        <input type="text" id="f-nombre" name="nombre" autocomplete="given-name" maxlength="100" required>
+        <p class="campo__error" id="err-nombre" data-error hidden></p>
+      </div>
+
+      <div class="campo" data-campo="empresa">
+        <label class="campo__etiqueta" for="f-empresa">Empresa</label>
+        <input type="text" id="f-empresa" name="empresa" autocomplete="organization" maxlength="150" required>
+        <p class="campo__error" id="err-empresa" data-error hidden></p>
+      </div>
+
+      <div class="campo" data-campo="email">
+        <label class="campo__etiqueta" for="f-email">Email</label>
+        <input type="email" id="f-email" name="email" autocomplete="email" inputmode="email" maxlength="150" required>
+        <p class="campo__error" id="err-email" data-error hidden></p>
+      </div>
+
+      <div class="campo" data-campo="telefono">
+        <label class="campo__etiqueta" for="f-telefono">Teléfono móvil</label>
+        <div class="telefono">
+          <select id="f-prefijo" name="telefono_prefijo" aria-label="Prefijo del país" autocomplete="tel-country-code">
+            <option value="+34" selected>🇪🇸 +34</option>
+            <option value="+351">🇵🇹 +351</option>
+            <option value="+376">🇦🇩 +376</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+41">🇨🇭 +41</option>
+            <option value="+32">🇧🇪 +32</option>
+            <option value="+31">🇳🇱 +31</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+54">🇦🇷 +54</option>
+            <option value="+56">🇨🇱 +56</option>
+            <option value="+57">🇨🇴 +57</option>
+            <option value="+51">🇵🇪 +51</option>
+            <option value="+593">🇪🇨 +593</option>
+            <option value="+598">🇺🇾 +598</option>
+          </select>
+          <input type="tel" id="f-telefono" name="telefono_numero" autocomplete="tel-national" inputmode="tel" maxlength="20" required>
+        </div>
+        <p class="campo__error" id="err-telefono" data-error hidden></p>
+      </div>
+
+      <div class="campo" data-campo="que_resolver">
+        <label class="campo__etiqueta" for="f-que_resolver">¿Qué te gustaría resolver? <span class="campo__opcional">(opcional)</span></label>
+        <textarea id="f-que_resolver" name="que_resolver" rows="4" maxlength="500" aria-describedby="cnt-que_resolver"></textarea>
+        <p class="campo__contador" id="cnt-que_resolver"><span data-contador>0</span>/500</p>
+        <p class="campo__error" id="err-que_resolver" data-error hidden></p>
+      </div>
+
+      <!-- Consentimientos: separados y nunca premarcados. Borrador pendiente de validación por abogado. -->
+      <div class="campo campo--consentimientos" data-campo="acepta_privacidad">
+        <label class="check check--legal"><input type="checkbox" name="acepta_privacidad" value="si" required><span>He leído y acepto la <a href="politica-privacidad.html" target="_blank" rel="noopener">política de privacidad</a>.</span></label>
+        <p class="campo__error" id="err-acepta_privacidad" data-error hidden></p>
+      </div>
+      <div class="campo campo--consentimientos" data-campo="acepta_llamada_ia">
+        <label class="check check--legal"><input type="checkbox" name="acepta_llamada_ia" value="si" required><span>Acepto recibir una llamada de Freedoo, realizada por un asistente de inteligencia artificial, para confirmar mi interés y agendar una reunión.</span></label>
+        <p class="campo__error" id="err-acepta_llamada_ia" data-error hidden></p>
+      </div>
+      <div class="campo campo--consentimientos" data-campo="acepta_comunicaciones">
+        <label class="check check--legal"><input type="checkbox" name="acepta_comunicaciones" value="si"><span>Quiero recibir comunicaciones comerciales de Freedoo por email sobre sus servicios. Puedo darme de baja cuando quiera.</span></label>
+      </div>
+      <div class="campo campo--consentimientos" data-campo="acepta_medicion_publicitaria">
+        <label class="check check--legal"><input type="checkbox" name="acepta_medicion_publicitaria" value="si"><span>Acepto que Freedoo comparta mis datos de contacto, cifrados, con Meta para medir la eficacia de sus anuncios. <span class="pendiente">[PENDIENTE abogado: mantener o eliminar esta casilla]</span></span></label>
+      </div>
+
+      <p class="formulario__aviso-ia">Al enviar, te llamará un asistente de inteligencia artificial, no una persona, al teléfono que nos has dado.</p>
+      <p class="formulario__error-envio" role="alert" data-error-envio hidden>No hemos podido enviar el formulario. Inténtalo de nuevo en unos segundos.</p>
+
+      <div class="formulario__acciones formulario__acciones--doble">
+        <button type="button" class="btn btn--secundario" data-volver>← Volver</button>
+        <button type="submit" class="btn" data-enviar>Enviar</button>
+      </div>
+    </div>
+
+    <!-- Campos ocultos -->
+    <input type="hidden" name="utm_source">
+    <input type="hidden" name="utm_medium">
+    <input type="hidden" name="utm_campaign">
+    <input type="hidden" name="utm_content">
+    <input type="hidden" name="utm_term">
+    <input type="hidden" name="fbclid">
+    <input type="hidden" name="event_id">
+    <input type="hidden" name="encaja">
+    <input type="hidden" name="landing_url">
+    <input type="hidden" name="timestamp">
+    <input type="hidden" name="telefono">
+    <input type="hidden" name="form_location">
+  </form>
+</template>
+
+<!-- Página de gracias (sustituye al formulario en el mismo contenedor) -->
+<template id="tpl-gracias">
+  <div class="gracias" tabindex="-1" data-gracias>
+    <svg class="gracias__icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M7.5 12.5l3 3 6-6.5"/></svg>
+    <h3 class="gracias__titulo">Gracias, <span data-gracias-nombre></span>. Ten el móvil a mano.</h3>
+    <p>En unos minutos te llamará el asistente de inteligencia artificial de Freedoo<span data-gracias-desde></span>. Te hará un par de preguntas y te propondrá un hueco para reunirte con nuestro equipo.</p>
+    <button type="button" class="btn" data-guardar-contacto hidden>Guardar el número en mis contactos</button>
+  </div>
+</template>
+
+<!-- ===== COMPARTIDO: lógica del banner de cookies ===== -->
+<script>
+(function () {
+  "use strict";
+  var banner = document.getElementById("cookies");
+  if (!banner) return;
+  var vistaResumen = banner.querySelector('[data-cookies-vista="resumen"]');
+  var vistaPanel = banner.querySelector('[data-cookies-vista="panel"]');
+  var chkAnalytics = document.getElementById("consent-analytics");
+  var chkAds = document.getElementById("consent-ads");
+  var focoAnterior = null;
+
+  // Reserva al final de la página la altura del banner para que no tape el pie.
+  function reservarEspacio() {
+    if (banner.hidden) document.documentElement.style.removeProperty("--alto-cookies");
+    else document.documentElement.style.setProperty("--alto-cookies", banner.offsetHeight + "px");
+  }
+  if (window.ResizeObserver) new ResizeObserver(reservarEspacio).observe(banner);
+  window.addEventListener("resize", reservarEspacio);
+
+  function mostrar(vista) {
+    var actual = freedooLeerConsentimiento();
+    chkAnalytics.checked = !!(actual && actual.analytics);
+    chkAds.checked = !!(actual && actual.ads);
+    vistaResumen.hidden = vista !== "resumen";
+    vistaPanel.hidden = vista !== "panel";
+    banner.setAttribute("aria-labelledby", vista === "panel" ? "cookies-titulo-panel" : "cookies-titulo");
+    banner.hidden = false;
+    reservarEspacio();
+  }
+  function ocultar() {
+    banner.hidden = true;
+    reservarEspacio();
+    if (focoAnterior && document.contains(focoAnterior)) focoAnterior.focus();
+    focoAnterior = null;
+  }
+
+  // Borra las cookies de terceros de una categoría cuando se retira el consentimiento.
+  function borrarCookies(analitica, publicidad) {
+    var patrones = [];
+    if (analitica) patrones.push(/^_ga($|_)/, /^_gid$/, /^_gat/, /^_clck$/, /^_clsk$/);
+    if (publicidad) patrones.push(/^_fbp$/, /^_fbc$/, /^_gcl_/);
+    if (!patrones.length) return;
+    var partes = location.hostname.split(".");
+    document.cookie.split(";").forEach(function (par) {
+      var nombre = par.split("=")[0].trim();
+      if (!nombre || !patrones.some(function (p) { return p.test(nombre); })) return;
+      document.cookie = nombre + "=; Max-Age=0; path=/";
+      for (var i = 0; i < partes.length - 1; i++) {
+        var dominio = partes.slice(i).join(".");
+        document.cookie = nombre + "=; Max-Age=0; path=/; domain=" + dominio;
+        document.cookie = nombre + "=; Max-Age=0; path=/; domain=." + dominio;
+      }
+    });
+  }
+
+  function guardar(analytics, ads) {
+    var anterior = freedooLeerConsentimiento();
+    var eleccion = { version: 1, fecha: new Date().toISOString(), analytics: !!analytics, ads: !!ads };
+    try { localStorage.setItem(FREEDOO_CONSENT_KEY, JSON.stringify(eleccion)); } catch (e) { /* sin almacenamiento: se volverá a preguntar */ }
+    var estado = freedooEstadoConsent(eleccion);
+    gtag('consent', 'update', estado);
+    freedooPush({
+      event: "consent_update",
+      analytics_storage: estado.analytics_storage,
+      ad_storage: estado.ad_storage,
+      ad_user_data: estado.ad_user_data,
+      ad_personalization: estado.ad_personalization
+    });
+    ocultar();
+    var retiraAnalitica = !!(anterior && anterior.analytics && !analytics);
+    var retiraPublicidad = !!(anterior && anterior.ads && !ads);
+    if (retiraAnalitica || retiraPublicidad) {
+      borrarCookies(retiraAnalitica, retiraPublicidad);
+      // Si las etiquetas ya estaban cargadas, se recarga para detenerlas por completo.
+      if (freedooGtmCargado) { location.reload(); return; }
+    }
+    if (analytics || ads) freedooCargarGTM();
+  }
+
+  banner.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-cookies]");
+    if (!b) return;
+    var accion = b.getAttribute("data-cookies");
+    if (accion === "aceptar") guardar(true, true);
+    else if (accion === "rechazar") guardar(false, false);
+    else if (accion === "guardar") guardar(chkAnalytics.checked, chkAds.checked);
+    else if (accion === "configurar") {
+      mostrar("panel");
+      document.getElementById("cookies-titulo-panel").focus();
+    }
+  });
+
+  // Enlace "Configurar cookies" del pie: reabre el panel.
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-abrir-cookies]");
+    if (!b) return;
+    e.preventDefault();
+    focoAnterior = b;
+    mostrar("panel");
+    document.getElementById("cookies-titulo-panel").focus();
+  });
+
+  // Año actual en el pie.
+  var anio = String(new Date().getFullYear());
+  Array.prototype.forEach.call(document.querySelectorAll("[data-anio]"), function (el) { el.textContent = anio; });
+
+  if (!freedooLeerConsentimiento()) mostrar("resumen");
+})();
+</script>
+<!-- ===== FIN COMPARTIDO: lógica del banner de cookies ===== -->
+
+<script>
+/* ===================== CONFIGURACIÓN DE LA LANDING ===================== */
+// Número desde el que llama el asistente de IA. [PENDIENTE: número del asistente de IA]
+// Vacío: la página de gracias no muestra número ni botón "Guardar el número en mis contactos".
+// Ejemplo: const TELEFONO_ASISTENTE = "+34 600 000 000";
+const TELEFONO_ASISTENTE = "";
+
+/* ===================== ENVÍO AL CRM ===================== */
+// TODO GHL: sustituir este cuerpo por el envío real a GoHighLevel en la migración
+// (ver README, "Migración a GHL"). Debe devolver una Promise que se resuelva si el
+// CRM ha recibido el lead y se rechace si no. `datos` usa los mismos `name` en snake_case.
+function enviarAlCRM(datos) {
+  console.info("[Freedoo] enviarAlCRM: simulación, todavía no se envía nada al CRM.", datos);
+  return Promise.resolve({ ok: true });
+}
+
+/* ===================== LÓGICA DE LA LANDING ===================== */
+(function () {
+  "use strict";
+
+  var raiz = document.documentElement;
+  var pagina = document.getElementById("pagina");
+  var reducirMovimiento = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var SS_TRACKING = "freedoo_tracking";
+  var SS_ENVIADO = "freedoo_lead_enviado";
+  var CAMPOS_TRACKING = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid"];
+
+  function ssLeer(clave) { try { return JSON.parse(sessionStorage.getItem(clave) || "null"); } catch (e) { return null; } }
+  function ssGuardar(clave, valor) { try { sessionStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* sin almacenamiento */ } }
+  function todos(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
+
+  /* ---------- Parámetros de campaña (URL → sessionStorage) ---------- */
+  var tracking = (function () {
+    var guardado = ssLeer(SS_TRACKING) || {};
+    var params = new URLSearchParams(location.search);
+    var hayNuevos = CAMPOS_TRACKING.some(function (k) { return params.get(k); });
+    if (hayNuevos) {
+      guardado = {};
+      CAMPOS_TRACKING.forEach(function (k) { guardado[k] = (params.get(k) || "").slice(0, 500); });
+      guardado.landing_url = location.href.slice(0, 2000);
+    }
+    CAMPOS_TRACKING.forEach(function (k) { if (typeof guardado[k] !== "string") guardado[k] = ""; });
+    if (!guardado.landing_url) guardado.landing_url = location.href.slice(0, 2000);
+    ssGuardar(SS_TRACKING, guardado);
+    return guardado;
+  })();
+
+  /* ---------- Palabra rotativa del hero ---------- */
+  (function () {
+    var rotador = document.querySelector("[data-rotador]");
+    if (!rotador) return;
+    var palabras = todos(".rotador__palabra", rotador);
+    var i = 0;
+    setInterval(function () {
+      var anterior = palabras[i];
+      i = (i + 1) % palabras.length;
+      palabras.forEach(function (p) { p.classList.remove("is-saliendo"); });
+      anterior.classList.remove("is-activa");
+      anterior.classList.add("is-saliendo");
+      palabras[i].classList.add("is-activa");
+    }, 2000);
+  })();
+
+  /* ---------- Preguntas frecuentes ---------- */
+  todos(".faq__item").forEach(function (item) {
+    item.addEventListener("toggle", function () {
+      if (!item.open) return;
+      freedooPush({ event: "faq_open", faq_question: item.querySelector("summary span").textContent.trim() });
+    });
+  });
+
+  /* ---------- Utilidades del formulario ---------- */
+  function uuidV4() {
+    if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    var b = new Uint8Array(16);
+    crypto.getRandomValues(b);
+    b[6] = (b[6] & 0x0f) | 0x40;
+    b[8] = (b[8] & 0x3f) | 0x80;
+    var h = Array.prototype.map.call(b, function (x) { return (x < 16 ? "0" : "") + x.toString(16); }).join("");
+    return h.slice(0, 8) + "-" + h.slice(8, 12) + "-" + h.slice(12, 16) + "-" + h.slice(16, 20) + "-" + h.slice(20);
+  }
+
+  function sufijarIds(raizFrag, sufijo) {
+    todos("[id]", raizFrag).forEach(function (el) { el.id = el.id + "-" + sufijo; });
+    todos("label[for]", raizFrag).forEach(function (el) { el.htmlFor = el.htmlFor + "-" + sufijo; });
+    ["aria-describedby", "aria-labelledby", "aria-controls"].forEach(function (attr) {
+      todos("[" + attr + "]", raizFrag).forEach(function (el) {
+        el.setAttribute(attr, el.getAttribute(attr).split(/\s+/).map(function (t) { return t + "-" + sufijo; }).join(" "));
+      });
+    });
+  }
+
+  function anadirDescripcion(el, id) {
+    var ids = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+    if (ids.indexOf(id) === -1) ids.push(id);
+    el.setAttribute("aria-describedby", ids.join(" "));
+  }
+  function quitarDescripcion(el, id) {
+    var ids = (el.getAttribute("aria-describedby") || "").split(/\s+/).filter(function (t) { return t && t !== id; });
+    if (ids.length) el.setAttribute("aria-describedby", ids.join(" "));
+    else el.removeAttribute("aria-describedby");
+  }
+
+  function enfocar(el) {
+    if (!el) return;
+    try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); }
+    el.scrollIntoView({ block: "center", behavior: reducirMovimiento ? "auto" : "smooth" });
+  }
+
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@.]{2,}$/;
+
+  /* ---------- Componente de formulario (una definición, dos instancias) ---------- */
+  var instancias = [];
+
+  function crearFormulario(host, ubicacion) {
+    var frag = document.getElementById("tpl-formulario").content.cloneNode(true);
+    sufijarIds(frag, ubicacion);
+    host.appendChild(frag);
+
+    var form = host.querySelector("[data-formulario]");
+    var pasoTexto = form.querySelector("[data-paso-texto]");
+    var barra = form.querySelector("[data-barra]");
+    var btnEnviar = form.querySelector("[data-enviar]");
+    var errorEnvio = form.querySelector("[data-error-envio]");
+    var contador = form.querySelector("[data-contador]");
+    var textarea = form.elements.que_resolver;
+    var pasoActual = 1;
+    var enviando = false;
+    var eventId = "";
+    var pasoCompletadoEnviado = false;
+    var claveInicio = "freedoo_form_start_" + ubicacion;
+
+    form.elements.form_location.value = ubicacion;
+
+    function valorRadio(nombre) {
+      var el = form.querySelector('input[name="' + nombre + '"]:checked');
+      return el ? el.value : "";
+    }
+    function valoresMarcados(nombre) {
+      return todos('input[name="' + nombre + '"]:checked', form).map(function (el) { return el.value; });
+    }
+    function marcado(nombre) { return !!form.querySelector('input[name="' + nombre + '"]:checked'); }
+    function texto(nombre) { return (form.elements[nombre].value || "").trim(); }
+
+    function telefonoNormalizado() {
+      var prefijo = form.elements.telefono_prefijo.value;
+      var codigo = prefijo.replace("+", "");
+      var limpio = texto("telefono_numero").replace(/[\s.\-()]/g, "");
+      if (limpio.indexOf("+" + codigo) === 0) limpio = limpio.slice(codigo.length + 1);
+      else if (limpio.indexOf("00" + codigo) === 0) limpio = limpio.slice(codigo.length + 2);
+      return { prefijo: prefijo, numero: limpio };
+    }
+
+    var radio = function (nombre) { return function () { return valorRadio(nombre) ? "" : "Elige una opción."; }; };
+    var VALIDADORES = {
+      sector: radio("sector"),
+      cargo: radio("cargo"),
+      tamano_empresa: radio("tamano_empresa"),
+      gestion_actual: function () { return valoresMarcados("gestion_actual").length ? "" : "Marca al menos una opción."; },
+      decisor: radio("decisor"),
+      plazo_inicio: radio("plazo_inicio"),
+      necesita_conectores: radio("necesita_conectores"),
+      inversion_primer_ano: radio("inversion_primer_ano"),
+      acepta_datos_depurados: function () { return marcado("acepta_datos_depurados") ? "" : "Marca esta casilla para continuar."; },
+      nombre: function () { return texto("nombre") ? "" : "Escribe tu nombre."; },
+      empresa: function () { return texto("empresa") ? "" : "Escribe el nombre de tu empresa."; },
+      email: function () {
+        var v = texto("email");
+        if (!v) return "Escribe tu email.";
+        return EMAIL_RE.test(v) ? "" : "Revisa el email: debe tener el formato nombre@empresa.com.";
+      },
+      telefono: function () {
+        var t = telefonoNormalizado();
+        if (!t.numero) return "Escribe tu teléfono móvil.";
+        if (!/^\d+$/.test(t.numero)) return "Escribe solo números.";
+        if (t.prefijo === "+34") return /^\d{9}$/.test(t.numero) ? "" : "El número debe tener 9 dígitos.";
+        return /^\d{6,14}$/.test(t.numero) ? "" : "Revisa el número de teléfono.";
+      },
+      que_resolver: function () { return texto("que_resolver").length <= 500 ? "" : "Máximo 500 caracteres."; },
+      acepta_privacidad: function () { return marcado("acepta_privacidad") ? "" : "Para enviar el formulario, acepta la política de privacidad."; },
+      acepta_llamada_ia: function () { return marcado("acepta_llamada_ia") ? "" : "Para enviar el formulario, acepta la llamada del asistente."; }
+    };
+
+    function camposDelPaso(n) { return todos('[data-paso="' + n + '"] [data-campo]', form); }
+    function controles(campo) { return todos('input:not([type="hidden"]), textarea', campo); }
+
+    function pintarError(campo, mensaje) {
+      var error = campo.querySelector("[data-error]");
+      if (!error) return;
+      if (mensaje) {
+        error.textContent = mensaje;
+        error.hidden = false;
+        campo.classList.add("campo--error");
+        controles(campo).forEach(function (c) { c.setAttribute("aria-invalid", "true"); anadirDescripcion(c, error.id); });
+      } else {
+        error.textContent = "";
+        error.hidden = true;
+        campo.classList.remove("campo--error");
+        controles(campo).forEach(function (c) { c.removeAttribute("aria-invalid"); quitarDescripcion(c, error.id); });
+      }
+    }
+
+    function validarCampo(campo) {
+      var v = VALIDADORES[campo.getAttribute("data-campo")];
+      var mensaje = v ? v() : "";
+      pintarError(campo, mensaje);
+      return !mensaje;
+    }
+
+    function primerControl(campo) {
+      return campo.querySelector('input[type="radio"]:checked') ||
+        campo.querySelector('input[type="tel"], input[type="text"], input[type="email"], textarea, input[type="radio"], input[type="checkbox"]');
+    }
+
+    function validarPaso(n) {
+      var primero = null;
+      camposDelPaso(n).forEach(function (campo) {
+        if (!validarCampo(campo) && !primero) primero = campo;
+      });
+      if (primero) {
+        freedooPush({ event: "form_error", form_location: ubicacion, step: n, field: primero.getAttribute("data-campo") });
+        enfocar(primerControl(primero));
+        return false;
+      }
+      return true;
+    }
+
+    function calcularEncaja() {
+      return (valorRadio("sector") === "otro" || valorRadio("necesita_conectores") === "si") ? "no" : "si";
+    }
+
+    function datosCualificacion() {
+      return {
+        sector: valorRadio("sector"),
+        cargo: valorRadio("cargo"),
+        tamano_empresa: valorRadio("tamano_empresa"),
+        decisor: valorRadio("decisor"),
+        plazo_inicio: valorRadio("plazo_inicio"),
+        necesita_conectores: valorRadio("necesita_conectores"),
+        inversion_primer_ano: valorRadio("inversion_primer_ano"),
+        encaja: calcularEncaja()
+      };
+    }
+
+    function rellenarOcultos() {
+      CAMPOS_TRACKING.forEach(function (k) { form.elements[k].value = tracking[k] || ""; });
+      form.elements.landing_url.value = tracking.landing_url || "";
+      form.elements.encaja.value = calcularEncaja();
+    }
+
+    function irAPaso(n, moverFoco) {
+      pasoActual = n;
+      todos("[data-paso]", form).forEach(function (p) { p.hidden = p.getAttribute("data-paso") !== String(n); });
+      pasoTexto.textContent = n === 1 ? "Paso 1 de 2 · Tu empresa" : "Paso 2 de 2 · Tus datos";
+      barra.style.width = n === 1 ? "50%" : "100%";
+      if (!moverFoco) return;
+      var contenedorScroll = host.closest(".modal__cuerpo");
+      if (contenedorScroll) contenedorScroll.scrollTop = 0;
+      else if (form.getBoundingClientRect().top < 0) form.scrollIntoView({ block: "start", behavior: reducirMovimiento ? "auto" : "smooth" });
+      var primerCampo = camposDelPaso(n)[0];
+      var c = primerCampo && primerControl(primerCampo);
+      if (c) { try { c.focus({ preventScroll: true }); } catch (e) { c.focus(); } }
+    }
+
+    function continuar() {
+      if (!validarPaso(1)) return;
+      if (!pasoCompletadoEnviado) {
+        pasoCompletadoEnviado = true;
+        var ev = datosCualificacion();
+        freedooPush({
+          event: "form_step_complete", form_location: ubicacion, step: 1,
+          sector: ev.sector, cargo: ev.cargo, tamano_empresa: ev.tamano_empresa, decisor: ev.decisor,
+          plazo_inicio: ev.plazo_inicio, necesita_conectores: ev.necesita_conectores,
+          inversion_primer_ano: ev.inversion_primer_ano, encaja: ev.encaja
+        });
+      }
+      irAPaso(2, true);
+    }
+
+    function recogerDatos() {
+      var tel = telefonoNormalizado();
+      var cual = datosCualificacion();
+      rellenarOcultos();
+      form.elements.event_id.value = eventId;
+      form.elements.timestamp.value = new Date().toISOString();
+      form.elements.telefono.value = tel.prefijo + tel.numero;
+      return {
+        sector: cual.sector,
+        cargo: cual.cargo,
+        tamano_empresa: cual.tamano_empresa,
+        gestion_actual: valoresMarcados("gestion_actual"),
+        decisor: cual.decisor,
+        plazo_inicio: cual.plazo_inicio,
+        necesita_conectores: cual.necesita_conectores,
+        inversion_primer_ano: cual.inversion_primer_ano,
+        acepta_datos_depurados: marcado("acepta_datos_depurados") ? "si" : "no",
+        nombre: texto("nombre"),
+        empresa: texto("empresa"),
+        email: texto("email"),
+        telefono: form.elements.telefono.value,
+        telefono_prefijo: tel.prefijo,
+        telefono_numero: tel.numero,
+        que_resolver: texto("que_resolver"),
+        acepta_privacidad: marcado("acepta_privacidad") ? "si" : "no",
+        acepta_llamada_ia: marcado("acepta_llamada_ia") ? "si" : "no",
+        acepta_comunicaciones: marcado("acepta_comunicaciones") ? "si" : "no",
+        acepta_medicion_publicitaria: marcado("acepta_medicion_publicitaria") ? "si" : "no",
+        utm_source: form.elements.utm_source.value,
+        utm_medium: form.elements.utm_medium.value,
+        utm_campaign: form.elements.utm_campaign.value,
+        utm_content: form.elements.utm_content.value,
+        utm_term: form.elements.utm_term.value,
+        fbclid: form.elements.fbclid.value,
+        event_id: form.elements.event_id.value,
+        encaja: form.elements.encaja.value,
+        landing_url: form.elements.landing_url.value,
+        timestamp: form.elements.timestamp.value,
+        form_location: ubicacion
+      };
+    }
+
+    function enviar() {
+      if (enviando) return;
+      if (!validarPaso(2)) return;
+      enviando = true;
+      btnEnviar.disabled = true;
+      btnEnviar.setAttribute("aria-busy", "true");
+      errorEnvio.hidden = true;
+      // El mismo event_id va al CRM (campo oculto) y al evento generate_lead del navegador,
+      // para deduplicar la conversión que GHL envíe por API a Meta.
+      // [PENDIENTE: verificar en la migración que GHL envía ese event_id a Meta]
+      if (!eventId) eventId = uuidV4(); // se conserva en los reintentos para poder deduplicar
+      var datos = recogerDatos();
+
+      Promise.resolve()
+        .then(function () { return enviarAlCRM(datos); })
+        .then(function () {
+          freedooPush({
+            event: "generate_lead",
+            form_location: ubicacion,
+            event_id: datos.event_id,
+            sector: datos.sector,
+            cargo: datos.cargo,
+            tamano_empresa: datos.tamano_empresa,
+            decisor: datos.decisor,
+            plazo_inicio: datos.plazo_inicio,
+            necesita_conectores: datos.necesita_conectores,
+            inversion_primer_ano: datos.inversion_primer_ano,
+            encaja: datos.encaja,
+            acepta_comunicaciones: datos.acepta_comunicaciones,
+            acepta_medicion_publicitaria: datos.acepta_medicion_publicitaria,
+            utm_source: datos.utm_source,
+            utm_medium: datos.utm_medium,
+            utm_campaign: datos.utm_campaign,
+            utm_content: datos.utm_content,
+            utm_term: datos.utm_term
+          });
+          registrarEnvio(datos.nombre, api);
+        }, function (err) {
+          console.warn("[Freedoo] No se ha podido enviar el formulario.", err);
+          enviando = false;
+          btnEnviar.disabled = false;
+          btnEnviar.removeAttribute("aria-busy");
+          errorEnvio.hidden = false;
+          btnEnviar.focus();
+        })
+        .catch(function (err) { console.warn("[Freedoo] Error tras el envío.", err); });
+    }
+
+    function mostrarGracias(nombre, moverFoco) {
+      var frag = document.getElementById("tpl-gracias").content.cloneNode(true);
+      frag.querySelector("[data-gracias-nombre]").textContent = nombre;
+      var desde = frag.querySelector("[data-gracias-desde]");
+      var btnContacto = frag.querySelector("[data-guardar-contacto]");
+      if (TELEFONO_ASISTENTE) {
+        desde.textContent = " desde el " + TELEFONO_ASISTENTE;
+        btnContacto.hidden = false;
+        btnContacto.addEventListener("click", descargarContacto);
+      } else {
+        desde.remove();
+        btnContacto.remove();
+      }
+      host.innerHTML = "";
+      host.appendChild(frag);
+      if (moverFoco) {
+        var g = host.querySelector("[data-gracias]");
+        var contenedorScroll = host.closest(".modal__cuerpo");
+        if (contenedorScroll) contenedorScroll.scrollTop = 0;
+        try { g.focus({ preventScroll: true }); } catch (e) { g.focus(); }
+        if (!contenedorScroll) g.scrollIntoView({ block: "center", behavior: reducirMovimiento ? "auto" : "smooth" });
+      }
+    }
+
+    /* Eventos del formulario */
+    function alInteractuar(e) {
+      var campo = e.target.closest("[data-campo]");
+      if (campo) {
+        campo.setAttribute("data-tocado", "");
+        if (campo.classList.contains("campo--error")) validarCampo(campo);
+      }
+      if (e.target === textarea) contador.textContent = String(textarea.value.length);
+      if (!ssLeer(claveInicio)) {
+        ssGuardar(claveInicio, true);
+        freedooPush({ event: "form_start", form_location: ubicacion });
+      }
+    }
+    form.addEventListener("input", alInteractuar);
+    form.addEventListener("change", alInteractuar);
+
+    form.addEventListener("focusout", function (e) {
+      var campo = e.target.closest("[data-campo]");
+      if (!campo || !campo.hasAttribute("data-tocado")) return;
+      if (e.relatedTarget && campo.contains(e.relatedTarget)) return;
+      validarCampo(campo);
+    });
+
+    form.addEventListener("click", function (e) {
+      if (e.target.closest("[data-continuar]")) { e.preventDefault(); continuar(); }
+      else if (e.target.closest("[data-volver]")) { e.preventDefault(); irAPaso(1, true); }
+    });
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (pasoActual === 1) continuar();
+      else enviar();
+    });
+
+    rellenarOcultos();
+
+    var api = {
+      ubicacion: ubicacion,
+      host: host,
+      mostrarGracias: mostrarGracias,
+      enfocarInicio: function () {
+        var g = host.querySelector("[data-gracias]");
+        if (g) { g.focus(); return; }
+        var primerCampo = camposDelPaso(pasoActual)[0];
+        var c = primerCampo && primerControl(primerCampo);
+        if (c) c.focus();
+      }
+    };
+    return api;
+  }
+
+  function registrarEnvio(nombre, origen) {
+    ssGuardar(SS_ENVIADO, { nombre: nombre });
+    instancias.forEach(function (inst) { inst.mostrarGracias(nombre, inst === origen); });
+  }
+
+  function descargarContacto() {
+    var tel = TELEFONO_ASISTENTE.replace(/[^\d+]/g, "");
+    var vcf = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      "N:;Freedoo — Asistente;;;",
+      "FN:Freedoo — Asistente",
+      "TEL;TYPE=CELL:" + tel,
+      "END:VCARD"
+    ].join("\r\n");
+    var url = URL.createObjectURL(new Blob([vcf], { type: "text/vcard;charset=utf-8" }));
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "freedoo-asistente.vcf";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  /* ---------- Instancias: pop-up e incrustado ---------- */
+  var formPopup = crearFormulario(document.querySelector('[data-form-host="popup"]'), "popup");
+  var formInline = crearFormulario(document.querySelector('[data-form-host="inline"]'), "inline");
+  instancias.push(formPopup, formInline);
+
+  var envioPrevio = ssLeer(SS_ENVIADO);
+  if (envioPrevio && typeof envioPrevio.nombre === "string") {
+    instancias.forEach(function (inst) { inst.mostrarGracias(envioPrevio.nombre, false); });
+  }
+
+  /* ---------- Pop-up ---------- */
+  var modal = document.getElementById("modal-form");
+  var panel = modal.querySelector(".modal__panel");
+  var modalAbierto = false;
+  var focoPrevio = null;
+  var SELECTOR_FOCO = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  function enfocables() {
+    return todos(SELECTOR_FOCO, panel).filter(function (el) { return el.offsetParent !== null || el === document.activeElement; });
+  }
+
+  function abrirModal() {
+    if (modalAbierto) return;
+    modalAbierto = true;
+    focoPrevio = document.activeElement;
+    var anchoBarra = window.innerWidth - document.documentElement.clientWidth;
+    if (anchoBarra > 0) document.body.style.paddingRight = anchoBarra + "px";
+    raiz.classList.add("modal-abierto");
+    pagina.setAttribute("inert", "");
+    pagina.setAttribute("aria-hidden", "true");
+    modal.hidden = false;
+    void modal.offsetWidth; // fuerza el reflow para que se vea la transición
+    modal.classList.add("is-visible");
+    freedooPush({ event: "form_open", form_location: "popup" });
+    formPopup.enfocarInicio();
+  }
+
+  function cerrarModal() {
+    if (!modalAbierto) return;
+    modalAbierto = false;
+    modal.classList.remove("is-visible");
+    modal.hidden = true;
+    raiz.classList.remove("modal-abierto");
+    pagina.removeAttribute("inert");
+    pagina.removeAttribute("aria-hidden");
+    document.body.style.paddingRight = "";
+    if (focoPrevio && document.contains(focoPrevio)) focoPrevio.focus();
+    focoPrevio = null;
+  }
+
+  modal.addEventListener("click", function (e) {
+    if (e.target.closest("[data-cerrar-modal]")) cerrarModal();
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (!modalAbierto) return;
+    if (e.key === "Escape" || e.key === "Esc") {
+      e.preventDefault();
+      cerrarModal();
+      return;
+    }
+    if (e.key !== "Tab" || !panel.contains(document.activeElement) && document.activeElement !== document.body) return;
+    var f = enfocables();
+    if (!f.length) { e.preventDefault(); panel.focus(); return; }
+    var primero = f[0];
+    var ultimo = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === primero || document.activeElement === panel)) {
+      e.preventDefault();
+      ultimo.focus();
+    } else if (!e.shiftKey && document.activeElement === ultimo) {
+      e.preventDefault();
+      primero.focus();
+    }
+  });
+
+  // Si el foco se escapa del pop-up (y no va al banner de cookies), se devuelve al pop-up.
+  document.addEventListener("focusin", function (e) {
+    if (!modalAbierto) return;
+    if (modal.contains(e.target)) return;
+    var banner = document.getElementById("cookies");
+    if (banner && banner.contains(e.target)) return;
+    formPopup.enfocarInicio();
+  });
+
+  /* ---------- Botones "Comprobar si encajamos" ---------- */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-abrir-form]");
+    if (!b) return;
+    e.preventDefault();
+    freedooPush({ event: "cta_click", cta_location: b.getAttribute("data-cta") });
+    abrirModal();
+  });
+})();
+</script>
+</body>
+</html>
